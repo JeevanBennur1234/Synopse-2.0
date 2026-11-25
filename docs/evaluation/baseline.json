@@ -1,0 +1,3568 @@
+{
+  "summary": {
+    "risk": {
+      "tp": 4,
+      "tn": 5,
+      "fp": 0,
+      "fn": 5,
+      "inconclusive": 0,
+      "precision": 1.0,
+      "recall": 0.4444444444444444,
+      "f1": 0.6153846153846154,
+      "accuracy": 0.6428571428571429
+    },
+    "any_flag": {
+      "tp": 7,
+      "tn": 5,
+      "fp": 0,
+      "fn": 2,
+      "inconclusive": 0,
+      "precision": 1.0,
+      "recall": 0.7777777777777778,
+      "f1": 0.875,
+      "accuracy": 0.8571428571428571
+    },
+    "expected_hits": 6,
+    "expected_total": 11,
+    "median_seconds": 1.016,
+    "mean_seconds": 0.915,
+    "max_seconds": 1.631
+  },
+  "rows": [
+    {
+      "filename": "invoice_clean_gst_01.pdf",
+      "label": "clean",
+      "risk_score": 1.5,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 0.681,
+      "expected": [],
+      "hits": [],
+      "flags": [],
+      "region_iou": [],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 832 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Extracted 2 distinct valid GSTINs (27SYNTH5678G1Z6, 29KAVCH1234F1Z4). Multiple valid GSTINs legitimately represent supplier and recipient entities on B2B invoices. Note: Valid GSTIN structure does not establish actual registration or ownership.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Invoice total arithmetic is consistent: subtotal (10000.00) - discount (0.00) + taxes (1800.00) = 11800.00, matching grand total (11800.00) within rounding tolerance 1.00.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 848,
+              "y": 733,
+              "w": 108,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 904,
+              "y": 933,
+              "w": 119,
+              "h": 27
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "CGST (900.00) and SGST (900.00) are symmetric and equal, consistent with intra-state / union territory GST rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.75,
+          "status": "passed",
+          "evidence": "Effective tax rate is 18.00% (consistent with standard GST slab 18.0%). No explicit tax rate extracted.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 783,
+              "y": 192,
+              "w": 100,
+              "h": 27
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 247,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_clean_01.png",
+      "label": "clean",
+      "risk_score": 1.88,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 0.981,
+      "expected": [],
+      "hits": [],
+      "flags": [],
+      "region_iou": [],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.png' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 883 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.2,
+          "status": "inconclusive",
+          "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.png' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 933,
+              "y": 1013,
+              "w": 113,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.35,
+          "confidence": 0.53,
+          "status": "inconclusive",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters). OCR confidence is low, indicating potential character misread.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 128,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_clean_01.jpg",
+      "label": "clean",
+      "risk_score": 1.98,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.189,
+      "expected": [],
+      "hits": [],
+      "flags": [],
+      "region_iou": [],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0306,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: error levels appear spatially consistent (median ELA=0.00, p95=1.23). Note: ELA highlights compression differences and does not alone prove forgery.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0527,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 883 blocks (median sigma=0.00, p95=0.79; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.2,
+          "status": "inconclusive",
+          "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.jpg' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 933,
+              "y": 1013,
+              "w": 113,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.35,
+          "confidence": 0.53,
+          "status": "inconclusive",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters). OCR confidence is low, indicating potential character misread.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 128,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_scanned_clean_01.pdf",
+      "label": "clean",
+      "risk_score": 1.89,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.051,
+      "expected": [],
+      "hits": [],
+      "flags": [],
+      "region_iou": null,
+      "dimensions_match": false,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0631,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 824 blocks (median sigma=0.39, p95=1.34; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF metadata is consistent. Producer: 'N/A', CreationDate: 2026-11-25T09:29:35+00:00. No timestamp inversions detected.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('27SYNTHS678G1Z6': violates 15-char structure pattern; '29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 161,
+              "y": 218,
+              "w": 184,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 234,
+              "y": 389,
+              "w": 169,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 161,
+              "y": 218,
+              "w": 184,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 234,
+              "y": 389,
+              "w": 169,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 895,
+              "y": 975,
+              "w": 109,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+          "boxes": []
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 812,
+              "y": 200,
+              "w": 95,
+              "h": 15
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.35,
+          "confidence": 0.27,
+          "status": "inconclusive",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters). OCR confidence is low, indicating potential character misread.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 143,
+              "y": 248,
+              "w": 123,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "bank_statement_clean_01.pdf",
+      "label": "clean",
+      "risk_score": 1.5,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 0.643,
+      "expected": [],
+      "hits": [],
+      "flags": [],
+      "region_iou": [],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints. Page 1: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 828 blocks (median sigma=0.00, p95=0.00; text edges excluded). Page 1: background noise is consistent across 840 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No GSTIN field detected in extracted document data.",
+          "boxes": []
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=missing); cannot verify invoice arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+          "boxes": []
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 8 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 382,
+              "y": 219,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 534,
+              "y": 219,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 371,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 423,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 475,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 527,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 225,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 277,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 329,
+              "w": 108,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 219,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_grand_total.pdf",
+      "label": "tampered",
+      "risk_score": 41.5,
+      "risk_level": "medium",
+      "coverage": 1.0,
+      "seconds": 0.331,
+      "expected": [
+        "grand_total_mismatch"
+      ],
+      "hits": [
+        "grand_total_mismatch"
+      ],
+      "flags": [
+        "invoice_arithmetic_consistency"
+      ],
+      "region_iou": [
+        0.20866381940207443
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 832 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Extracted 2 distinct valid GSTINs (27SYNTH5678G1Z6, 29KAVCH1234F1Z4). Multiple valid GSTINs legitimately represent supplier and recipient entities on B2B invoices. Note: Valid GSTIN structure does not establish actual registration or ownership.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.8,
+          "confidence": 0.85,
+          "status": "suspicious",
+          "evidence": "Invoice grand total arithmetic discrepancy: subtotal (10000.00) - discount (0.00) + taxes (1800.00) yields expected 11800.00, but extracted grand total is 19800.00 (discrepancy: 8000.00, exceeds tolerance 1.00).",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 848,
+              "y": 733,
+              "w": 108,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 904,
+              "y": 933,
+              "w": 119,
+              "h": 27
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "CGST (900.00) and SGST (900.00) are symmetric and equal, consistent with intra-state / union territory GST rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.75,
+          "status": "passed",
+          "evidence": "Effective tax rate is 18.00% (consistent with standard GST slab 18.0%). No explicit tax rate extracted.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 783,
+              "y": 192,
+              "w": 100,
+              "h": 27
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 247,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_invalid_gstin.pdf",
+      "label": "tampered",
+      "risk_score": 44.0,
+      "risk_level": "medium",
+      "coverage": 1.0,
+      "seconds": 0.353,
+      "expected": [
+        "invalid_gstin"
+      ],
+      "hits": [
+        "invalid_gstin"
+      ],
+      "flags": [
+        "gstin_validation"
+      ],
+      "region_iou": [
+        0.4472547809993831
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 832 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.85,
+          "confidence": 0.85,
+          "status": "suspicious",
+          "evidence": "Invalid GSTIN candidate(s) detected: '99INVALID1234Z0': violates 15-char structure pattern.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Invoice total arithmetic is consistent: subtotal (10000.00) - discount (0.00) + taxes (1800.00) = 11800.00, matching grand total (11800.00) within rounding tolerance 1.00.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 848,
+              "y": 733,
+              "w": 108,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 904,
+              "y": 933,
+              "w": 119,
+              "h": 27
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "CGST (900.00) and SGST (900.00) are symmetric and equal, consistent with intra-state / union territory GST rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.75,
+          "status": "passed",
+          "evidence": "Effective tax rate is 18.00% (consistent with standard GST slab 18.0%). No explicit tax rate extracted.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 783,
+              "y": 192,
+              "w": 100,
+              "h": 27
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 247,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_tax_mismatch.pdf",
+      "label": "tampered",
+      "risk_score": 41.5,
+      "risk_level": "medium",
+      "coverage": 1.0,
+      "seconds": 0.33,
+      "expected": [
+        "tax_inconsistency"
+      ],
+      "hits": [
+        "tax_inconsistency"
+      ],
+      "flags": [
+        "cgst_sgst_symmetry"
+      ],
+      "region_iou": [
+        0.13614703880190607
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 832 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Extracted 2 distinct valid GSTINs (27SYNTH5678G1Z6, 29KAVCH1234F1Z4). Multiple valid GSTINs legitimately represent supplier and recipient entities on B2B invoices. Note: Valid GSTIN structure does not establish actual registration or ownership.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 164,
+              "y": 217,
+              "w": 180,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 232,
+              "y": 381,
+              "w": 162,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Invoice total arithmetic is consistent: subtotal (10000.00) - discount (0.00) + taxes (2300.00) = 12300.00, matching grand total (12300.00) within rounding tolerance 1.00.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 848,
+              "y": 733,
+              "w": 108,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 904,
+              "y": 933,
+              "w": 119,
+              "h": 27
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.8,
+          "confidence": 0.85,
+          "status": "suspicious",
+          "evidence": "Asymmetric intra-state GST amounts: CGST (1400.00) != SGST (900.00) (diff: 500.00). Equal CGST and state/UT rates and amounts are required for standard intra-state supplies.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 96,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Effective tax rate is 23.00%. Mixed-rate line items, cess, or special tax slabs frequently yield non-uniform composite tax rates; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 800,
+              "y": 773,
+              "w": 96,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 809,
+              "w": 72,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 800,
+              "y": 845,
+              "w": 48,
+              "h": 25
+            },
+            {
+              "page": 0,
+              "x": 848,
+              "y": 881,
+              "w": 48,
+              "h": 25
+            }
+          ]
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 783,
+              "y": 192,
+              "w": 100,
+              "h": 27
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 247,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "bank_statement_tampered_balance.pdf",
+      "label": "tampered",
+      "risk_score": 1.5,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 0.776,
+      "expected": [
+        "running_balance_mismatch"
+      ],
+      "hits": [],
+      "flags": [],
+      "region_iou": [
+        0
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints. Page 1: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 828 blocks (median sigma=0.00, p95=0.00; text edges excluded). Page 1: background noise is consistent across 840 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.25,
+          "status": "inconclusive",
+          "evidence": "No document metadata (/Info or /CreationDate) found in PDF. Metadata is frequently stripped by print-to-PDF drivers, scanners, or privacy tools and does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No GSTIN field detected in extracted document data.",
+          "boxes": []
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=missing); cannot verify invoice arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+          "boxes": []
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 8 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 382,
+              "y": 219,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 534,
+              "y": 219,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 371,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 423,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 475,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 0,
+              "x": 88,
+              "y": 527,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 225,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 277,
+              "w": 108,
+              "h": 22
+            },
+            {
+              "page": 1,
+              "x": 88,
+              "y": 329,
+              "w": 108,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 145,
+              "y": 219,
+              "w": 119,
+              "h": 22
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_scanned_tampered_total.pdf",
+      "label": "tampered",
+      "risk_score": 44.28,
+      "risk_level": "medium",
+      "coverage": 1.0,
+      "seconds": 1.073,
+      "expected": [
+        "grand_total_mismatch"
+      ],
+      "hits": [],
+      "flags": [
+        "gstin_validation",
+        "ifsc_validation"
+      ],
+      "region_iou": null,
+      "dimensions_match": false,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0593,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 821 blocks (median sigma=0.47, p95=1.36; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_metadata_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF metadata is consistent. Producer: 'N/A', CreationDate: 2026-11-25T09:29:35+00:00. No timestamp inversions detected.",
+          "boxes": []
+        },
+        {
+          "name": "pdf_structural_integrity",
+          "score": 0.0,
+          "confidence": 0.85,
+          "status": "passed",
+          "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.85,
+          "confidence": 0.85,
+          "status": "suspicious",
+          "evidence": "Extracted GSTIN '29KAVCH1234F124' violates standard 15-character structural pattern.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 217,
+              "w": 185,
+              "h": 16
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 894,
+              "y": 976,
+              "w": 110,
+              "h": 17
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+          "boxes": []
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 813,
+              "y": 200,
+              "w": 95,
+              "h": 15
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.85,
+          "confidence": 0.85,
+          "status": "suspicious",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters).",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 247,
+              "w": 123,
+              "h": 14
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_visual_ela.jpg",
+      "label": "tampered",
+      "risk_score": 26.46,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.321,
+      "expected": [
+        "ela_compression_splice",
+        "grand_total_mismatch"
+      ],
+      "hits": [
+        "ela_compression_splice"
+      ],
+      "flags": [
+        "ela",
+        "noise_inconsistency"
+      ],
+      "region_iou": [
+        0.0
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.7056,
+          "confidence": 0.75,
+          "status": "suspicious",
+          "evidence": "Page 0: detected 1 localized JPEG error-level outlier(s) (peak z=14.5, median ELA=0.00, MAD=0.00). Note: ELA highlights compression differences and does not alone prove forgery.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 136,
+              "y": 924,
+              "w": 135,
+              "h": 86
+            }
+          ]
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.5961,
+          "confidence": 0.6859,
+          "status": "suspicious",
+          "evidence": "Page 0: detected 1 region(s) with anomalous background noise (baseline sigma=0.00, peak z=10.7; text edges excluded).",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 720,
+              "y": 1008,
+              "w": 288,
+              "h": 48
+            }
+          ]
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.2,
+          "status": "inconclusive",
+          "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.jpg' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 932,
+              "y": 1013,
+              "w": 115,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            },
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 127,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_visual_copy_move.png",
+      "label": "tampered",
+      "risk_score": 1.88,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.127,
+      "expected": [
+        "copy_move_clone"
+      ],
+      "hits": [],
+      "flags": [],
+      "region_iou": [
+        0,
+        0
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.png' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 879 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.2,
+          "status": "inconclusive",
+          "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.png' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 933,
+              "y": 1013,
+              "w": 113,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            },
+            {
+              "page": 0,
+              "x": 437,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            },
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.35,
+          "confidence": 0.53,
+          "status": "inconclusive",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters). OCR confidence is low, indicating potential character misread.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 128,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_visual_noise.png",
+      "label": "tampered",
+      "risk_score": 25.57,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.323,
+      "expected": [
+        "noise_inconsistency",
+        "grand_total_mismatch"
+      ],
+      "hits": [
+        "noise_inconsistency"
+      ],
+      "flags": [
+        "noise_inconsistency"
+      ],
+      "region_iou": [
+        0.7262259281318245
+      ],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "ELA is not applicable to '.png' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.6819,
+          "confidence": 0.7462,
+          "status": "suspicious",
+          "evidence": "Page 0: detected 1 region(s) with anomalous background noise (baseline sigma=1.48, peak z=12.7; text edges excluded).",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 672,
+              "y": 960,
+              "w": 480,
+              "h": 144
+            }
+          ]
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.0,
+          "confidence": 0.2,
+          "status": "inconclusive",
+          "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.png' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 933,
+              "y": 1013,
+              "w": 113,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "IFSC code 'SYNB0001234' conforms to the 11-character RBI standard structure.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 127,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    },
+    {
+      "filename": "invoice_tampered_metadata_edited.jpg",
+      "label": "tampered",
+      "risk_score": 26.25,
+      "risk_level": "low",
+      "coverage": 1.0,
+      "seconds": 1.631,
+      "expected": [
+        "editing_software_exif"
+      ],
+      "hits": [
+        "editing_software_exif"
+      ],
+      "flags": [
+        "image_metadata"
+      ],
+      "region_iou": [],
+      "dimensions_match": true,
+      "findings": [
+        {
+          "name": "ela",
+          "score": 0.0306,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: error levels appear spatially consistent (median ELA=0.00, p95=1.23). Note: ELA highlights compression differences and does not alone prove forgery.",
+          "boxes": []
+        },
+        {
+          "name": "copy_move",
+          "score": 0.05,
+          "confidence": 0.7,
+          "status": "passed",
+          "evidence": "Page 0: no consistent copy-move region clusters detected across 2500 keypoints.",
+          "boxes": []
+        },
+        {
+          "name": "noise_inconsistency",
+          "score": 0.0527,
+          "confidence": 0.65,
+          "status": "passed",
+          "evidence": "Page 0: background noise is consistent across 883 blocks (median sigma=0.00, p95=0.79; text edges excluded).",
+          "boxes": []
+        },
+        {
+          "name": "image_metadata",
+          "score": 0.7,
+          "confidence": 0.7,
+          "status": "suspicious",
+          "evidence": "Editing software indicator(s) detected: exif:Software='Adobe Photoshop CC 2024 (Windows)'. Post-capture modification gap: EXIF DateTime (2026-11-24T18:30:00) is more than 24h after DateTimeOriginal (2026-11-20T10:00:00). Note: image editing software or timestamp shifts can occur during benign cropping/resaving and do not alone prove forgery.",
+          "boxes": []
+        },
+        {
+          "name": "file_forensics",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "not_applicable",
+          "evidence": "File forensics is designed for PDF documents; '.jpg' container metadata is handled by image_metadata to avoid duplicate scoring.",
+          "boxes": []
+        },
+        {
+          "name": "gstin_validation",
+          "score": 0.3,
+          "confidence": 0.5,
+          "status": "inconclusive",
+          "evidence": "Extracted GSTIN candidate defects detected ('29KAVCH1234F124': violates 15-char structure pattern), but low OCR confidence indicates potential extraction degradation.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 162,
+              "y": 231,
+              "w": 192,
+              "h": 14
+            },
+            {
+              "page": 0,
+              "x": 240,
+              "y": 408,
+              "w": 176,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "invoice_arithmetic_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or grand total is missing (subtotal=missing, total=resolved); cannot verify invoice arithmetic.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 933,
+              "y": 1013,
+              "w": 113,
+              "h": 18
+            }
+          ]
+        },
+        {
+          "name": "invoice_line_items_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Optional line items (_line_items) not present in extracted document fields.",
+          "boxes": []
+        },
+        {
+          "name": "cgst_sgst_symmetry",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Unpaired tax component: SGST (900.00) detected while CGST was not extracted. Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 833,
+              "y": 828,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 833,
+              "y": 868,
+              "w": 67,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 832,
+              "y": 908,
+              "w": 44,
+              "h": 13
+            },
+            {
+              "page": 0,
+              "x": 880,
+              "y": 948,
+              "w": 44,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "gst_jurisdiction_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+          "boxes": []
+        },
+        {
+          "name": "tax_rate_arithmetic",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+          "boxes": []
+        },
+        {
+          "name": "calendar_date_validity",
+          "score": 0.0,
+          "confidence": 0.9,
+          "status": "passed",
+          "evidence": "Validated 2 calendar date(s); all conform to valid calendar days and leap year rules.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 840,
+              "y": 206,
+              "w": 98,
+              "h": 15
+            },
+            {
+              "page": 0,
+              "x": 167,
+              "y": 983,
+              "w": 63,
+              "h": 9
+            }
+          ]
+        },
+        {
+          "name": "date_chronology",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+          "boxes": []
+        },
+        {
+          "name": "ifsc_validation",
+          "score": 0.35,
+          "confidence": 0.53,
+          "status": "inconclusive",
+          "evidence": "IFSC candidate 'SYNBO001234' violates 11-character structural pattern (4 letters, '0', 6 alphanumeric characters). OCR confidence is low, indicating potential character misread.",
+          "boxes": [
+            {
+              "page": 0,
+              "x": 144,
+              "y": 262,
+              "w": 128,
+              "h": 13
+            }
+          ]
+        },
+        {
+          "name": "bank_statement_balance_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+          "boxes": []
+        },
+        {
+          "name": "qr_code_consistency",
+          "score": 0.0,
+          "confidence": 0.0,
+          "status": "inconclusive",
+          "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+          "boxes": []
+        }
+      ]
+    }
+  ]
+}
