@@ -7,6 +7,9 @@ from pydantic import BaseModel, Field
 from typing import Literal
 from app.schemas import DetectorResult
 from app.preprocessing.document import validate, process
+from app.preprocessing.fields import locate
+from app.pipeline.orchestrator import execute
+from app.scoring.risk import calculate
 
 ROOT = Path(os.environ.get("KAVACH_DATA", str(Path(__file__).resolve().parents[1] / "uploads")))
 ROOT.mkdir(parents=True, exist_ok=True)
@@ -42,6 +45,11 @@ class PageResult(BaseModel):
     method: Literal["native_pdf", "ocr"]
     preview_url: str
 
+class EngineRun(BaseModel):
+    engine: str
+    status: Literal['completed', 'inconclusive', 'error', 'unavailable']
+    finding_count: int
+
 class JobResult(BaseModel):
     job_id: str
     status: Literal["queued", "running", "completed", "failed"]
@@ -52,6 +60,8 @@ class JobResult(BaseModel):
     pages: list[PageResult]
     fields: dict[str, list[str]] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
+    engine_runs: list[EngineRun] = Field(default_factory=list)
+    field_locations: dict[str, list[dict]] = Field(default_factory=dict)
 
 
 def connect():
@@ -78,7 +88,10 @@ def run(job, source):
         pages, fields, warnings = process(source)
         for page in pages:
             page["preview_url"] = f'/result/{job["job_id"]}/pages/{page["page"]}'
-        job.update(status="completed", pages=pages, fields=fields, warnings=warnings + ["Forensic detectors not integrated; risk is inconclusive."])
+        findings, runs, detector_warnings = execute(source, pages, fields)
+        risk = calculate(runs)
+        job.update(**risk)
+        job.update(status="completed", pages=pages, fields=fields, field_locations=locate(pages, fields), findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
     except Exception:
         logging.exception("Processing failed for job %s", job["job_id"])
         job.update(status="failed", warnings=["Document processing failed."])
