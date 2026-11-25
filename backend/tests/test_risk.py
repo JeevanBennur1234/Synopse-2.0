@@ -99,3 +99,21 @@ def test_visual_flag_without_high_reliability_does_not_raise_floor(name):
     assert risk["risk_score"] == 19.5
     assert meta["floor_level"] == "low"
     assert meta["annotated_runs"][0]["findings"][0]["severity"] == "suspicious"
+
+
+
+def test_invoice_coverage_counts_core_statuses_not_engine_completion():
+    from app.scoring.risk import evaluate
+
+    checks = ("invoice_arithmetic_consistency", "invoice_line_items_arithmetic", "tax_rate_arithmetic")
+    cases = (
+        (("passed", "inconclusive", "not_applicable"), "inconclusive", 0.5),
+        (("passed", "passed", "not_applicable"), "low", 1.0),
+        (("suspicious", "inconclusive", "not_applicable"), "medium", 0.5),
+    )
+    for statuses, level, coverage in cases:
+        findings = [dict(name=name, status=status, confidence=0.9,
+                         score=0.6 if status == "suspicious" else 0)
+                    for name, status in zip(checks, statuses)]
+        result, _ = evaluate([dict(engine="consistency", status="completed", findings=findings)], checks)
+        assert (result["risk_level"], result["coverage"]) == (level, coverage)
