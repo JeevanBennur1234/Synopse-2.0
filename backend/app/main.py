@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from typing import Literal
 from app.schemas import DetectorResult
 from app.preprocessing.document import validate, process
+from app.preprocessing.fields import locate
 
 ROOT = Path(os.environ.get("KAVACH_DATA", str(Path(__file__).resolve().parents[1] / "uploads")))
 ROOT.mkdir(parents=True, exist_ok=True)
@@ -52,6 +53,7 @@ class JobResult(BaseModel):
     pages: list[PageResult]
     fields: dict[str, list[str]] = Field(default_factory=dict)
     warnings: list[str] = Field(default_factory=list)
+    field_locations: dict[str, list[dict]] = Field(default_factory=dict)
 
 
 def connect():
@@ -78,7 +80,7 @@ def run(job, source):
         pages, fields, warnings = process(source)
         for page in pages:
             page["preview_url"] = f'/result/{job["job_id"]}/pages/{page["page"]}'
-        job.update(status="completed", pages=pages, fields=fields, warnings=warnings + ["Forensic detectors not integrated; risk is inconclusive."])
+        job.update(status="completed", pages=pages, fields=fields, field_locations=locate(pages, fields), warnings=warnings + ["Forensic detectors not integrated; risk is inconclusive."])
     except Exception:
         logging.exception("Processing failed for job %s", job["job_id"])
         job.update(status="failed", warnings=["Document processing failed."])

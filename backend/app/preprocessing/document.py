@@ -45,19 +45,7 @@ def ocr(image, index):
             words.append(dict(text=text, page=index, x=data["left"][i], y=data["top"][i], w=data["width"][i], h=data["height"][i], confidence=max(0, float(data["conf"][i]))/100))
     return words
 
-def extract(text):
-    patterns = {
-        "gstin": r"\b\d{2}[A-Z]{5}\d{4}[A-Z][A-Z0-9]Z[A-Z0-9]\b",
-        "dates": r"\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}-\d{2}-\d{2})\b",
-        "ifsc": r"\b[A-Z]{4}0[A-Z0-9]{6}\b",
-        "invoice_number": r"(?im)invoice\s*(?:no\.?|number|#)\s*[: ]\s*([\w/-]+)",
-        "total": r"(?im)^\s*(?:grand\s+total|invoice\s+total|total\s+amount)\s*[: ]\s*(?:INR|Rs\.?|₹)?\s*([\d,]+(?:\.\d{1,2})?)",
-        "subtotal": r"(?im)^\s*sub\s*total\s*[: ]\s*(?:INR|Rs\.?|₹)?\s*([\d,]+(?:\.\d{1,2})?)",
-        "cgst": r"(?im)^\s*CGST\s*[: ]\s*([\d,]+(?:\.\d{1,2})?)",
-        "sgst": r"(?im)^\s*SGST\s*[: ]\s*([\d,]+(?:\.\d{1,2})?)",
-        "igst": r"(?im)^\s*IGST\s*[: ]\s*([\d,]+(?:\.\d{1,2})?)"
-    }
-    return {key: list(dict.fromkeys(re.findall(pattern, text))) for key, pattern in patterns.items()}
+from app.preprocessing.fields import extract
 
 def process(source: Path):
     pages, warnings = [], []
@@ -79,6 +67,10 @@ def process(source: Path):
                     key = next((k for k in lines if abs(k-w["y"]) <= max(3,w["h"]//2)), w["y"])
                     lines.setdefault(key, []).append(w)
                 text = "\n".join(" ".join(w["text"] for w in sorted(lines[k], key=lambda x:x["x"])) for k in sorted(lines))
+        if not words:
+            warnings.append(f"Page {index}: no readable text")
+        elif method == "ocr" and sum(w["confidence"] for w in words)/len(words) < 0.6:
+            warnings.append(f"Page {index}: low OCR confidence")
         pages.append(dict(page=index,width=image.width,height=image.height,text=text or "",words=words,method=method))
     if source.suffix == ".pdf":
         with fitz.open(source) as doc:
