@@ -1,0 +1,20 @@
+{
+  "filename": "extra_invoice_clean_photo.jpg",
+  "relative_path": "dataset/eval_extra/clean/extra_invoice_clean_photo.jpg",
+  "document_type": "gst_invoice",
+  "label": "clean",
+  "format": "jpg",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [],
+  "affected_page": null,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Independent clean JPEG invoice."
+}

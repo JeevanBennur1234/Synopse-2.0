@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import io
 import json
+import math
 from dataclasses import dataclass
 from pathlib import Path
 import random
@@ -518,6 +519,56 @@ def add_scan_effects(img: Image.Image, rng: np.random.Generator, sigma: float = 
     return Image.fromarray(noisy, mode="RGB").filter(ImageFilter.GaussianBlur(radius=0.35))
 
 
+def scanned_pdf_rendered_dims(
+    img_w: int = IMG_WIDTH,
+    img_h: int = IMG_HEIGHT,
+    resolution: int = 150,
+    scale: int = PDF_RENDER_SCALE,
+) -> tuple[int, int]:
+    """Return PyMuPDF 2x rendered pixel dimensions for an image-embedded PDF."""
+    pt_w = img_w * 72.0 / resolution
+    pt_h = img_h * 72.0 / resolution
+    return math.ceil(pt_w * scale - 0.001), math.ceil(pt_h * scale - 0.001)
+
+
+def transform_scanned_pdf_box(
+    box: dict[str, int],
+    angle: float,
+    src_w: int = IMG_WIDTH,
+    src_h: int = IMG_HEIGHT,
+    resolution: int = 150,
+    scale: int = PDF_RENDER_SCALE,
+) -> dict[str, int]:
+    """Transform source-image box through PIL rotation and 2x PDF rendering."""
+    cx, cy = src_w / 2.0, src_h / 2.0
+    theta = math.radians(-angle)
+    cos_t, sin_t = math.cos(theta), math.sin(theta)
+    corners = [
+        (box["x"], box["y"]),
+        (box["x"] + box["w"], box["y"]),
+        (box["x"], box["y"] + box["h"]),
+        (box["x"] + box["w"], box["y"] + box["h"]),
+    ]
+    rot_pts = [
+        (cx + (px - cx) * cos_t - (py - cy) * sin_t, cy + (px - cx) * sin_t + (py - cy) * cos_t)
+        for px, py in corners
+    ]
+    rx0 = max(0.0, min(p[0] for p in rot_pts))
+    ry0 = max(0.0, min(p[1] for p in rot_pts))
+    rx1 = min(float(src_w), max(p[0] for p in rot_pts))
+    ry1 = min(float(src_h), max(p[1] for p in rot_pts))
+
+    out_w, out_h = scanned_pdf_rendered_dims(src_w, src_h, resolution=resolution, scale=scale)
+    sx, sy = out_w / src_w, out_h / src_h
+    return {
+        "page": box["page"],
+        "x": int(round(rx0 * sx)),
+        "y": int(round(ry0 * sy)),
+        "w": max(1, int(round((rx1 - rx0) * sx))),
+        "h": max(1, int(round((ry1 - ry0) * sy))),
+    }
+
+
 def write_gt(
     stem: str,
     relative_path: str,
@@ -629,6 +680,8 @@ def main() -> None:
     )
 
     # 3. Clean scanned-style PDF
+    scanned_w, scanned_h = scanned_pdf_rendered_dims(IMG_WIDTH, IMG_HEIGHT, resolution=150)
+    scanned_pdf_dims = [{"page": 0, "width": scanned_w, "height": scanned_h}]
     scanned_clean = add_scan_effects(clean_img, rng, sigma=3.0, angle=-0.5)
     scanned_clean.save(CLEAN_DIR / "invoice_scanned_clean_01.pdf", format="PDF", resolution=150)
     manifest.append(
@@ -641,7 +694,7 @@ def main() -> None:
             expected_anomalies=[],
             affected_page=None,
             known_affected_regions=[],
-            page_dimensions=img_dims,
+            page_dimensions=scanned_pdf_dims,
             notes="Clean scanned-style image PDF (forces OCR extraction path).",
         )
     )
@@ -807,6 +860,7 @@ def main() -> None:
     tampered_scan_base, scan_boxes = render_invoice_image(grand_total="18,800.00", invoice_no="INV-2026-105")
     tampered_scan = add_scan_effects(tampered_scan_base, rng, sigma=3.5, angle=-0.6)
     tampered_scan.save(TAMPERED_DIR / "invoice_scanned_tampered_total.pdf", format="PDF", resolution=150)
+    transformed_scan_box = transform_scanned_pdf_box(scan_boxes["grand_total"], angle=-0.6)
     manifest.append(
         write_gt(
             stem="invoice_scanned_tampered_total",
@@ -822,8 +876,8 @@ def main() -> None:
                 }
             ],
             affected_page=0,
-            known_affected_regions=[{**scan_boxes["grand_total"], "description": "Altered Grand total on scanned invoice"}],
-            page_dimensions=img_dims,
+            known_affected_regions=[{**transformed_scan_box, "description": "Altered Grand total on scanned invoice"}],
+            page_dimensions=scanned_pdf_dims,
             notes="Scanned-style PDF requiring OCR to detect grand total arithmetic discrepancy.",
         )
     )

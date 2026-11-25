@@ -324,4 +324,146 @@ describe("Kavach Frontend End-to-End Workflows", () => {
 
     expect(fetchMock.mock.calls.length).toBe(callsBeforeUnmount);
   });
+
+  it("shows Manual review required warning on low aggregate risk with suspicious finding and exports real report JSON", async () => {
+    const realPhase13Payload = {
+      job_id: "job-ela-low-risk",
+      status: "completed",
+      review_required: true,
+      check_status_counts: { passed: 3, suspicious: 2, inconclusive: 9, not_applicable: 1, error: 0 },
+      risk_score: 26.46,
+      risk_level: "low",
+      coverage: 1.0,
+      engine_runs: [
+        { engine: "visual", status: "completed", finding_count: 4 },
+        { engine: "file_forensics", status: "not_applicable", finding_count: 1 },
+        { engine: "consistency", status: "completed", finding_count: 10 },
+      ],
+      findings: [
+        {
+          name: "ela",
+          score: 0.7056,
+          confidence: 0.75,
+          status: "suspicious",
+          evidence: "Page 0: detected 1 localized JPEG error-level outlier(s).",
+          boxes: [{ page: 0, x: 136, y: 924, w: 135, h: 86 }],
+        },
+        {
+          name: "noise_inconsistency",
+          score: 0.5961,
+          confidence: 0.6859,
+          status: "suspicious",
+          evidence: "Page 0: detected 1 region(s) with anomalous background noise.",
+          boxes: [{ page: 0, x: 720, y: 1008, w: 288, h: 48 }],
+        },
+        {
+          name: "calendar_date_validity",
+          score: 0.0,
+          confidence: 0.9,
+          status: "passed",
+          evidence: "Validated 2 calendar date(s).",
+          boxes: [{ page: 0, x: 840, y: 206, w: 98, h: 15 }],
+        },
+      ],
+      fields: { gstin: ["29KAVCH1234F1Z4"], total: ["31,800.00"] },
+      field_locations: {},
+      warnings: [],
+      registry_checks: [
+        { gstin: "29KAVCH1234F1Z4", status: "synthetic_match", message: "Matched local synthetic registry entry." },
+      ],
+      explanation: {
+        summary: "Overall heuristic risk is low (26.46/100). 2 suspicious finding(s); engine evidence coverage 100%.",
+        reasons: [
+          { detector: "ela", evidence: "Page 0: detected 1 localized JPEG error-level outlier(s).", confidence: 0.75, pages: [0] },
+        ],
+        limitations: ["Risk is a heuristic, not a probability of fraud or proof of authenticity."],
+        recommendation: "Review highlighted evidence and verify against original records.",
+        method: "deterministic",
+      },
+      pages: [
+        {
+          page: 0,
+          width: 1240,
+          height: 1754,
+          text: "SAMPLE / TEST ONLY",
+          words: [],
+          method: "ocr",
+          preview_url: "/result/job-ela-low-risk/pages/0",
+        },
+      ],
+    };
+
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith("/health")) return mockJsonResponse({ status: "ok" });
+      if (url.endsWith("/analyze")) return mockJsonResponse({ job_id: "job-ela-low-risk", status: "queued" }, 202);
+      if (url.includes("/result/job-ela-low-risk")) return mockJsonResponse(realPhase13Payload);
+      return mockJsonResponse({}, 404);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    let capturedBlob = null;
+    const origCreateObjectURL = URL.createObjectURL;
+    const origRevokeObjectURL = URL.revokeObjectURL;
+    URL.createObjectURL = vi.fn((blob) => {
+      capturedBlob = blob;
+      return "blob:mock-report";
+    });
+    URL.revokeObjectURL = vi.fn();
+
+    render(<App />);
+    await waitFor(() => expect(screen.getByText(/Backend Connected/i)).toBeInTheDocument());
+
+    const input = document.querySelector('input[type="file"]');
+    fireEvent.change(input, {
+      target: { files: [new File(["jpg"], "invoice_tampered_visual_ela.jpg", { type: "image/jpeg" })] },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Analyze Document/i }));
+
+    await waitFor(() => expect(screen.getByText("26.5")).toBeInTheDocument());
+    expect(screen.getByText("Low Risk")).toBeInTheDocument();
+    expect(screen.getByText(/Manual review required\. Inspect individual findings and limitations regardless of aggregate risk\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Mock GST Registry \(Synthetic Only\)/i)).toBeInTheDocument();
+
+    // Verify overlay alignment math across zoom changes when image layout size updates
+    const img = screen.getByAltText("Document page 1");
+    Object.defineProperty(img, "clientWidth", { value: 620, configurable: true });
+    Object.defineProperty(img, "clientHeight", { value: 877, configurable: true });
+    fireEvent.load(img);
+
+    let overlays = screen.getAllByTestId("overlay-box");
+    expect(overlays[0].style.left).toBe("68px");
+    expect(overlays[0].style.top).toBe("462px");
+
+    Object.defineProperty(img, "clientWidth", { value: 930, configurable: true });
+    Object.defineProperty(img, "clientHeight", { value: 1315.5, configurable: true });
+    fireEvent.click(screen.getByRole("button", { name: /Zoom in/i }));
+    await waitFor(() => {
+      overlays = screen.getAllByTestId("overlay-box");
+      expect(overlays[0].style.left).toBe("102px");
+      expect(overlays[0].style.top).toBe("693px");
+    });
+
+    // Open PrintableReport and verify suspicious-only previews + JSON export
+    fireEvent.click(screen.getByRole("button", { name: /Export Report/i }));
+    expect(screen.getByText(/Suspicious Region Previews/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Calendar Date Validity • Page 1/i)).not.toBeInTheDocument();
+
+    const anchorClickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    fireEvent.click(screen.getByRole("button", { name: /Download JSON/i }));
+    expect(anchorClickSpy).toHaveBeenCalled();
+    expect(capturedBlob).not.toBeNull();
+    const blobText = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsText(capturedBlob);
+    });
+    const exportedJson = JSON.parse(blobText);
+    expect(exportedJson.job_id).toBe("job-ela-low-risk");
+    expect(exportedJson.review_required).toBe(true);
+    expect(exportedJson.risk_score).toBe(26.46);
+
+    anchorClickSpy.mockRestore();
+    URL.createObjectURL = origCreateObjectURL;
+    URL.revokeObjectURL = origRevokeObjectURL;
+  });
 });

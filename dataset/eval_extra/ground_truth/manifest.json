@@ -1,0 +1,226 @@
+{
+  "total_samples": 8,
+  "samples": [
+    {
+      "filename": "extra_invoice_clean_igst.pdf",
+      "relative_path": "dataset/eval_extra/clean/extra_invoice_clean_igst.pdf",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Independent clean inter-state IGST invoice."
+    },
+    {
+      "filename": "extra_invoice_clean_receipt.png",
+      "relative_path": "dataset/eval_extra/clean/extra_invoice_clean_receipt.png",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "png",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Independent clean PNG invoice."
+    },
+    {
+      "filename": "extra_invoice_clean_photo.jpg",
+      "relative_path": "dataset/eval_extra/clean/extra_invoice_clean_photo.jpg",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "jpg",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Independent clean JPEG invoice."
+    },
+    {
+      "filename": "extra_statement_clean_2p.pdf",
+      "relative_path": "dataset/eval_extra/clean/extra_statement_clean_2p.pdf",
+      "document_type": "bank_statement",
+      "label": "clean",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        },
+        {
+          "page": 1,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Independent clean 2-page bank statement."
+    },
+    {
+      "filename": "extra_invoice_tampered_gstin_checksum.pdf",
+      "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_gstin_checksum.pdf",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "invalid_gstin",
+          "description": "Seller GSTIN '29ORION4321K1Z0' matches regex pattern but fails mod-36 check digit."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 72,
+          "y": 212,
+          "w": 266,
+          "h": 36,
+          "description": "Altered GSTIN check digit"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Tampered GSTIN check digit test."
+    },
+    {
+      "filename": "extra_invoice_tampered_igst_mix.pdf",
+      "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_igst_mix.pdf",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "tax_inconsistency",
+          "description": "Applies both CGST+SGST (1,800.00) and IGST (1,800.00) simultaneously on 10,000.00 subtotal."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 670,
+          "y": 730,
+          "w": 230,
+          "h": 114,
+          "description": "Simultaneous CGST+SGST and IGST lines"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Conflicting intra-state and inter-state GST tax components."
+    },
+    {
+      "filename": "extra_invoice_tampered_visual_ela_splice.jpg",
+      "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_visual_ela_splice.jpg",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "jpg",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "visual",
+          "code": "ela_compression_splice",
+          "description": "Grand total region spliced at JPEG q=30 onto q=95 invoice."
+        },
+        {
+          "category": "consistency",
+          "code": "grand_total_mismatch",
+          "description": "Grand total reads 27,700.00 instead of 17,700.00."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 695,
+          "y": 954,
+          "w": 475,
+          "h": 68,
+          "description": "JPEG splice over Grand total"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Independent visual ELA splice + total mismatch test."
+    },
+    {
+      "filename": "extra_invoice_tampered_metadata_gimp.png",
+      "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_metadata_gimp.png",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "png",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "image_metadata",
+          "code": "editing_software_exif",
+          "description": "PNG tEXt Software chunk indicates 'GIMP 2.10.36'."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Independent PNG metadata software tag test."
+    }
+  ]
+}

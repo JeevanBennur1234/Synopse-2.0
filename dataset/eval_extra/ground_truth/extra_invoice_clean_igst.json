@@ -1,0 +1,20 @@
+{
+  "filename": "extra_invoice_clean_igst.pdf",
+  "relative_path": "dataset/eval_extra/clean/extra_invoice_clean_igst.pdf",
+  "document_type": "gst_invoice",
+  "label": "clean",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [],
+  "affected_page": null,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Independent clean inter-state IGST invoice."
+}
