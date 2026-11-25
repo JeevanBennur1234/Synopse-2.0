@@ -1,10 +1,10 @@
-import { EvidenceSummary } from "./components/EvidenceSummary";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { checkHealth, getJobResult, uploadDocument } from "./api/client";
 import { DEMO_SCENARIOS } from "./data/demoSamples";
 import { HeaderBar } from "./components/HeaderBar";
 import { UploadPanel } from "./components/UploadPanel";
 import { RiskOverview } from "./components/RiskOverview";
+import { EvidenceSummary } from "./components/EvidenceSummary";
 import { FindingsPanel } from "./components/FindingsPanel";
 import { FieldsAndWarnings } from "./components/FieldsAndWarnings";
 import { DocumentViewer } from "./components/DocumentViewer";

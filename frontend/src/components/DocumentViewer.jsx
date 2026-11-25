@@ -45,14 +45,28 @@ export function DocumentViewer({
     };
 
     updateSize();
+    const rafId =
+      typeof requestAnimationFrame === "function"
+        ? requestAnimationFrame(updateSize)
+        : null;
 
+    let observer;
     if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(updateSize);
+      observer = new ResizeObserver(updateSize);
       observer.observe(img);
-      return () => observer.disconnect();
+    } else {
+      window.addEventListener("resize", updateSize);
     }
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
+    return () => {
+      if (rafId !== null && typeof cancelAnimationFrame === "function") {
+        cancelAnimationFrame(rafId);
+      }
+      if (observer) {
+        observer.disconnect();
+      } else {
+        window.removeEventListener("resize", updateSize);
+      }
+    };
   }, [activePage?.preview_url, zoom]);
 
   const pageBoxes = [];
@@ -190,9 +204,9 @@ export function DocumentViewer({
           No rendered pages available yet.
         </div>
       ) : (
-        <div className="rounded-lg border border-slate-200 bg-slate-100 overflow-auto max-h-[760px] p-4 flex justify-center">
+        <div className="rounded-lg border border-slate-200 bg-slate-100 overflow-auto max-h-[760px] p-4">
           <div
-            className="relative inline-block shadow-md bg-white origin-top"
+            className="relative block mx-auto shadow-md bg-white"
             style={{ width: `${Math.round(zoom * 100)}%`, maxWidth: `${Math.round(activePage.width * zoom)}px` }}
           >
             <img
@@ -236,6 +250,7 @@ export function DocumentViewer({
                   <button
                     key={`overlay-${findingIndex}-${boxIndex}`}
                     type="button"
+                    data-testid="overlay-box"
                     onClick={() => onSelectBox(findingIndex, box)}
                     title={`${formatDetectorLabel(finding.name)}: ${finding.evidence}`}
                     style={{

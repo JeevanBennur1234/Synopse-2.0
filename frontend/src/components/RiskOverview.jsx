@@ -34,6 +34,10 @@ export function RiskOverview({ result }) {
   const coveragePct = Math.round(
     Math.max(0, Math.min(1, result.coverage ?? 0)) * 100
   );
+  const manualReviewRequired = Boolean(
+    result.review_required ||
+      result.findings?.some((f) => f.status === "suspicious")
+  );
 
   const RiskIcon =
     riskKey === "low"
@@ -45,7 +49,18 @@ export function RiskOverview({ result }) {
   return (
     <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {(result.review_required || result.findings?.some(f => f.status === "suspicious")) && <div role="alert" className="lg:col-span-12 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 font-semibold">Manual review required. Inspect individual findings and limitations regardless of aggregate risk.</div>}
+        {manualReviewRequired && (
+          <div
+            role="alert"
+            className="lg:col-span-12 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs sm:text-sm text-amber-900 font-semibold flex items-center gap-2"
+          >
+            <ShieldAlert className="h-4 w-4 text-amber-700 shrink-0" />
+            <span>
+              Manual review required. Inspect individual findings and
+              limitations regardless of aggregate risk.
+            </span>
+          </div>
+        )}
         {/* Risk Score Card */}
         <div className={`lg:col-span-5 rounded-lg border p-4 ${style.panel}`}>
           <div className="flex items-start justify-between gap-3">
@@ -137,7 +152,7 @@ export function RiskOverview({ result }) {
                         ENGINE_STATUS_CLS.unavailable
                       }`}
                     >
-                      {run.status.replaceAll('_', ' ')}
+                      {String(run.status || "").replaceAll("_", " ")}
                     </span>
                     <span className="text-[11px] text-slate-500">
                       {run.finding_count}{" "}
@@ -152,7 +167,14 @@ export function RiskOverview({ result }) {
           <div className="mt-3 pt-3 border-t border-slate-200 flex items-start gap-2 text-[11px] text-slate-600">
             <Info className="h-3.5 w-3.5 text-slate-500 shrink-0 mt-0.5" />
             <span>
-              {result.check_status_counts && <span>Individual checks: {result.check_status_counts.inconclusive || 0} inconclusive, {result.check_status_counts.error || 0} errors. </span>} Kavach reports screening risk indicators, not definitive proof of
+              {result.check_status_counts && (
+                <span>
+                  Individual checks:{" "}
+                  {result.check_status_counts.inconclusive || 0} inconclusive,{" "}
+                  {result.check_status_counts.error || 0} errors.{" "}
+                </span>
+              )}
+              Kavach reports screening risk indicators, not definitive proof of
               forgery. At least 60% weighted detector coverage is required for a
               numeric risk score; coverage is measured across applicable engines.
             </span>

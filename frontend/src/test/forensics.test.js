@@ -54,21 +54,28 @@ describe("scaleBoundingBox", () => {
 });
 
 describe("finding categorization & byte formatting", () => {
-  it("groups findings into visual, file_forensics, and consistency", () => {
+  it("groups Phase 13 detector names into visual, file_forensics, and consistency", () => {
     expect(categorizeFinding("ela")).toBe("visual");
     expect(categorizeFinding("copy_move")).toBe("visual");
+    expect(categorizeFinding("image_metadata")).toBe("visual");
     expect(categorizeFinding("file_forensics")).toBe("file_forensics");
+    expect(categorizeFinding("pdf_metadata_integrity")).toBe("file_forensics");
     expect(categorizeFinding("consistency")).toBe("consistency");
+    expect(categorizeFinding("invoice_line_items_arithmetic")).toBe("consistency");
+    expect(categorizeFinding("calendar_date_validity")).toBe("consistency");
+    expect(categorizeFinding("ifsc_validation")).toBe("consistency");
+    expect(categorizeFinding("qr_code_consistency")).toBe("consistency");
 
     const grouped = groupFindings([
       { name: "ela", score: 0.8, confidence: 0.9, status: "suspicious", evidence: "x", boxes: [] },
-      { name: "file_forensics", score: 0.1, confidence: 0.9, status: "passed", evidence: "y", boxes: [] },
-      { name: "consistency", score: 0.9, confidence: 0.95, status: "suspicious", evidence: "z", boxes: [] },
+      { name: "pdf_metadata_integrity", score: 0.1, confidence: 0.9, status: "passed", evidence: "y", boxes: [] },
+      { name: "invoice_line_items_arithmetic", score: 0.9, confidence: 0.95, status: "suspicious", evidence: "z", boxes: [] },
     ]);
 
     expect(grouped.visual).toHaveLength(1);
     expect(grouped.file_forensics).toHaveLength(1);
     expect(grouped.consistency).toHaveLength(1);
+    expect(grouped.other).toHaveLength(0);
   });
 
   it("formats file sizes clearly", () => {

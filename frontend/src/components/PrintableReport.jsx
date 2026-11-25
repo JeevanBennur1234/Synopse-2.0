@@ -1,4 +1,3 @@
-import { EvidenceSummary } from "./EvidenceSummary";
 import { useEffect, useRef, useState } from "react";
 import { Download, Printer, X, ShieldCheck } from "lucide-react";
 import { resolveAssetUrl } from "../api/client";
@@ -8,6 +7,7 @@ import {
   formatDetectorLabel,
   formatFieldLabel,
 } from "../utils/forensics";
+import { EvidenceSummary } from "./EvidenceSummary";
 
 function RegionPreview({ page, box, label }) {
   const canvasRef = useRef(null);
@@ -88,7 +88,9 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
 
   const regionItems = [];
   (result.findings || []).forEach((finding, fIdx) => {
-    (finding.status === 'suspicious' ? finding.boxes || [] : []).forEach((box, bIdx) => {
+    const boxes =
+      finding.status === "suspicious" ? finding.boxes || [] : [];
+    boxes.forEach((box, bIdx) => {
       const page = (result.pages || []).find((p) => p.page === box.page);
       regionItems.push({
         key: `${fIdx}-${bIdx}`,
@@ -210,6 +212,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
           </div>
 
           <EvidenceSummary result={result} />
+
           {/* Findings */}
           <div className="print-break-inside-avoid">
             <h3 className="text-sm font-bold text-slate-900 mb-2">
