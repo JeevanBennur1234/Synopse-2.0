@@ -8,6 +8,9 @@ See [TEAM_TASKS.md](docs/TEAM_TASKS.md) and [API_CONTRACT.md](docs/API_CONTRACT.
 
 Error-level analysis can flag localized differences in JPEG recompression history. A
 globally re-saved splice can remain inconclusive, as on the annotated grand-total
-region in invoice_tampered_visual_ela.jpg. Develop flagged a separate region on
+region in invoice_tampered_visual_ela.jpg. develop flagged a separate region on
 that fixture, with zero overlap with the annotated splice. The invoice arithmetic
 check still flags the altered total.
+
+### Frontend Dependency Audit
+- `npm audit --omit=dev` (checked on `feat/doc-types`): **0 production vulnerabilities** (dev-only tooling vulnerabilities left un-upgraded per freeze policy).

@@ -71,7 +71,7 @@ def parse_and_validate_date(raw_date_str: str) -> tuple[date | None, str | None]
             return None, str(exc)
 
     # General fallback with standard formats
-    for fmt in ("%d %b %Y", "%d %B %Y", "%b %d, %Y"):
+    for fmt in ("%d %b %Y", "%d %B %Y", "%d %b, %Y", "%d %B, %Y", "%b %d, %Y", "%B %d, %Y"):
         try:
             dt = datetime.strptime(clean_str, fmt).date()
             return dt, None

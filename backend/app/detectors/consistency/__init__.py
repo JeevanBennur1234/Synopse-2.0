@@ -206,6 +206,19 @@ class ConsistencyDetector:
                     key = ("gstin",) if f.name == "gstin_validation" else ("ifsc",)
                     if _is_ocr_sourced(f, key, fields, ocr_pages, native_pages):
                         findings[i] = _unconfirmed_ocr_identifier(f)
+        from app.detectors.consistency.document_types import certificate, inclusive, statement_amounts
+        kind = fields.get("_document_type")
+        text = "\n".join(p.get("text", "") for p in fields.get("_pages", []))
+        if kind == "gst_certificate":
+            findings = [f if f.name in ("gstin_validation", "qr_code_consistency", "calendar_date_validity") else f.model_copy(update={"status":"not_applicable","score":0,"confidence":0,"evidence":"Not applicable to GST certificates.","boxes":[]}) for f in findings]
+            findings.extend(certificate(fields))
+        if kind == "receipt" and re.search(r"\ball inclusive\b|\btax inclusive\b", text, re.I):
+            findings = [f for f in findings if f.name != "invoice_arithmetic_consistency"]
+            findings.append(inclusive(fields))
+        if kind in ("bank_statement","upi_statement") and not re.search(r"\bbalance\b", text, re.I):
+            findings = [f.model_copy(update={"status":"not_applicable","score":0,"confidence":0,"evidence":"No balance column identified.","boxes":[]}) if f.name == "bank_statement_balance_consistency" else f for f in findings]
+        if kind == "upi_statement":
+            findings.append(statement_amounts(fields))
         return findings
 
 

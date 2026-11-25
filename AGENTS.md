@@ -5,3 +5,4 @@ Image forensics owns detectors/visual and detectors/image_metadata.
 Document security owns detectors/consistency and detectors/file_forensics.
 Frontend lead owns frontend, dataset, scripts, reports and docs/demo.
 Read docs/API_CONTRACT.md. Work on assigned branch, test changes, open PR to develop. Shared contracts require lead approval. Missing evidence is inconclusive, not clean. Risk is not proof of forgery.
+Temporary phase note (`feat/doc-types`): shared backend, OCR, consistency, scoring, schema, and frontend files are temporarily owned by the sole developer for this phase with lead approval.

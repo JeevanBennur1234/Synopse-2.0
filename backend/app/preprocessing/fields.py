@@ -8,7 +8,7 @@ def extract(text):
         "ifsc": r"\b[A-Z]{4}0[A-Z0-9]{6}\b",
         "invoice_number": r"(?im)\binvoice[ \t]*(?:no\.?|number|#)[ \t]*:?[ \t]*([\w/-]+)",
     }
-    for key,label in {"total":r"grand total|invoice total|total amount|total","subtotal":r"sub[ \t]*total|taxable value","cgst":"CGST","sgst":"SGST","igst":"IGST","utgst":"UTGST","cess":"cess","discount":"discount","opening_balance":"opening balance","closing_balance":"closing balance"}.items():
+    for key,label in {"total":r"grand total|invoice total|net total|total amount|total","subtotal":r"sub[ \t]*total|taxable value|taxable amount","cgst":"CGST","sgst":"SGST","igst":"IGST","utgst":"UTGST","cess":"cess","discount":"discount","opening_balance":"opening balance","closing_balance":"closing balance"}.items():
         rate = r"(?:[ \t]*\([ \t]*\d+(?:\.\d+)?[ \t]*%[ \t]*\))?" if key in {"cgst", "sgst", "utgst", "igst", "cess"} else ""
         patterns[key]=r"(?im)^[ \t]*(?:"+label+r")"+rate+r"[ \t]*:?[ \t]*"+AMOUNT+r"[ \t]*$"
     date = r"(\d{4}-\d{2}-\d{2}|\d{1,2}[-/]\d{1,2}[-/]\d{4})"
@@ -22,9 +22,23 @@ def extract(text):
         candidates=re.findall(r"(?im)\b"+label+r"(?:[ \t]+(?:no\.?|code))?[ \t]*:?[ \t]+([A-Z0-9-]{3,30})\b",text)
         result[key]=list(dict.fromkeys(result[key]+[v.upper() for v in candidates]))
     # Recover explicitly labelled amounts embedded in OCR lines.
-    for key,label in {"subtotal":r"sub[ \t]*total|taxable value","cgst":"CGST","sgst":"SGST","igst":"IGST"}.items():
+    for key,label in {"subtotal":r"sub[ \t]*total|taxable value|taxable amount","cgst":"CGST","sgst":"SGST","igst":"IGST"}.items():
         values=re.findall(r"(?im)\b(?:"+label+r")[ \t]*:[ \t]*"+AMOUNT+r"[ \t]*$",text)
         result[key]=list(dict.fromkeys(result[key]+values))
+    # Named-month dates (e.g. "27 Oct, 2026", "Nov 24, 2026") for statements and receipts.
+    named_date = r"\b(?:\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*,?\s+\d{4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4})\b"
+    result["dates"] = list(dict.fromkeys(result["dates"] + re.findall(named_date, text, re.I)))
+    # Label-anchored extraction for GST certificates (never auto-correcting characters).
+    for cert_key, cert_label in {
+        "registration_number": r"registration\s*number",
+        "legal_name": r"legal\s*name",
+        "principal_address": r"address\s*of\s*principal\s*place\s*of\s*business|principal\s*place\s*of\s*business",
+        "constitution": r"constitution\s*of\s*business",
+    }.items():
+        vals = re.findall(r"(?im)\b(?:" + cert_label + r")[ \t]*:?[ \t]*(?:\n[ \t]*)?([^\n]{2,120})", text)
+        cleaned = [v.strip() for v in vals if v.strip()]
+        if cleaned:
+            result[cert_key] = list(dict.fromkeys(cleaned))
     return result
 
 def locate(pages, fields):

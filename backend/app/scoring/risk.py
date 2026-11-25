@@ -44,6 +44,8 @@ COPY_MOVE_MIN_FLOOR_CONFIDENCE = 0.70
 
 # An isolated ELA signal also retains its existing weighted risk cap.
 LOW_CONFIDENCE_DETECTORS = frozenset({"ela"})
+# Typography alone must never raise the overall risk level.
+NON_ESCALATING_DETECTORS = frozenset({"typography"})
 
 
 def _evidence_group(finding: dict[str, Any], engine_name: str) -> str:
@@ -159,8 +161,9 @@ def evaluate(runs: list[dict[str, Any]], core_checks: tuple[str, ...] = ()) -> t
         floor_level = "low"
 
     ela_only = bool(suspicious_detectors) and suspicious_detectors <= LOW_CONFIDENCE_DETECTORS
+    non_escalating_only = bool(suspicious_detectors) and suspicious_detectors <= NON_ESCALATING_DETECTORS
 
-    if (missing_core and not suspicious_detectors) or (
+    if (missing_core and not suspicious_detectors) or (missing_core and non_escalating_only) or (
         not core_checks and coverage < MIN_COVERAGE
     ) or not observed:
         risk = dict(risk_score=None, risk_level="inconclusive", coverage=round(coverage, 4))
@@ -193,6 +196,8 @@ def evaluate(runs: list[dict[str, Any]], core_checks: tuple[str, ...] = ()) -> t
     level = floor_level if LEVEL_ORDER[floor_level] > LEVEL_ORDER[weighted_level] else weighted_level
     if ela_only and level == "high":
         level = "medium"
+    if non_escalating_only and LEVEL_ORDER[level] > LEVEL_ORDER["low"]:
+        level = "low"
 
     floor_applied = LEVEL_ORDER[level] > LEVEL_ORDER[weighted_level]
     risk = dict(

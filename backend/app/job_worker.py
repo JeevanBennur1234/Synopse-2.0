@@ -17,6 +17,7 @@ from app.preprocessing.document import process
 from app.preprocessing.fields import locate
 from app.preprocessing.tables import extract_tables
 from app.scoring.risk import evaluate
+from app.preprocessing.profiles import classify, coverage, PROFILES
 
 
 def run_pipeline(job_id: str, source: Path) -> dict:
@@ -32,22 +33,28 @@ def run_pipeline(job_id: str, source: Path) -> dict:
     context.update(tables)
     warnings.extend(table_warnings)
 
+    kind, type_confidence = classify(pages, fields, tables)
+    context["_document_type"] = kind
     findings, runs, detector_warnings = execute(source, pages, context)
-    is_invoice = not tables.get("_bank_transactions") and bool(
-        fields.get("invoice_number") or fields.get("invoice_date")
-        or (fields.get("subtotal") and fields.get("total"))
-        or any(re.search(r"\binvoice\b", " ".join(p["text"].splitlines()[:6]), re.I)
-               for p in pages)
-    )
-    core_checks = (
-        "invoice_arithmetic_consistency", "invoice_line_items_arithmetic", "tax_rate_arithmetic"
-    ) if is_invoice else ()
+    core_checks = PROFILES[kind]
     risk, risk_meta = evaluate(runs, core_checks)
-    missing_core = risk["risk_level"] == "inconclusive" and bool(core_checks) and risk["coverage"] < 1
-
+    profile = coverage(kind, findings)
+    reasons = []
+    if any("low OCR confidence" in w or "no readable text" in w for w in warnings):
+        reasons.append("Image quality or OCR confidence limits verification.")
+    if kind != "invoice" and (profile["verified"] < 2 or profile["verified"] < profile["required"]):
+        reasons.append("Too few applicable business checks could be verified.")
+    if kind != "invoice" and reasons and risk["risk_level"] == "low":
+        risk.update(risk_score=None, risk_level="inconclusive")
+    missing_core = risk["risk_level"] == "inconclusive" and kind == "invoice"
 
     result: dict = {}
     result.update(**risk)
+    result.update(document_type=kind, document_type_confidence=type_confidence,
+                  profile_coverage=profile, limited_evidence=bool(reasons),
+                  limited_evidence_reasons=reasons,
+                  verdict="Limited checks" if reasons and risk["risk_level"] == "inconclusive" and kind != "invoice" else
+                  ("Insufficient evidence" if risk["risk_level"] == "inconclusive" else risk["risk_level"].title()))
     result["insufficient_core_evidence"] = missing_core
     result["review_required"] = (
         any(f.status == "suspicious" or (

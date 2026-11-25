@@ -55,6 +55,13 @@ export function RiskOverview({ result }) {
   return (
     <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {result.document_type && (
+          <div className="lg:col-span-12 text-sm">
+            <strong>Document type:</strong> {result.document_type.replaceAll("_", " ")}
+            {result.profile_coverage && <span> | Profile checks: {result.profile_coverage.verified}/{result.profile_coverage.required}</span>}
+            {result.limited_evidence && <p>{result.verdict}: {result.limited_evidence_reasons?.join(" ")}</p>}
+          </div>
+        )}
         {manualReviewRequired && (
           <div
             role="alert"
