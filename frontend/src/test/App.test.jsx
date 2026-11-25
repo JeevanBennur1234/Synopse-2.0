@@ -420,8 +420,8 @@ describe("Kavach Frontend End-to-End Workflows", () => {
     fireEvent.click(screen.getByRole("button", { name: /Analyze Document/i }));
 
     await waitFor(() => expect(screen.getByText("26.5")).toBeInTheDocument());
-    expect(screen.getByText("Low Risk")).toBeInTheDocument();
     expect(screen.getByText(/Manual review required\. Inspect individual findings and limitations regardless of aggregate risk\./i)).toBeInTheDocument();
+    expect(screen.getByText("Low risk, 1 signal found, manual review suggested")).toBeInTheDocument();
     expect(screen.getByText(/Mock GST Registry \(Synthetic Only\)/i)).toBeInTheDocument();
 
     // Verify overlay alignment math across zoom changes when image layout size updates
@@ -461,6 +461,8 @@ describe("Kavach Frontend End-to-End Workflows", () => {
     expect(exportedJson.job_id).toBe("job-ela-low-risk");
     expect(exportedJson.review_required).toBe(true);
     expect(exportedJson.risk_score).toBe(26.46);
+    expect(exportedJson.risk_summary).toBe("Low risk, 1 signal found, manual review suggested");
+    expect(screen.getAllByText(exportedJson.risk_summary)).toHaveLength(2);
 
     anchorClickSpy.mockRestore();
     URL.createObjectURL = origCreateObjectURL;
