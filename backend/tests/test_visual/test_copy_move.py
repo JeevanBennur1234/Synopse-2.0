@@ -56,12 +56,31 @@ def test_copy_move_detects_duplicated_region(tmp_path: Path) -> None:
 
     res = CopyMoveDetector().analyze(doc_path, [doc_path], {})[0]
     assert res.status == "suspicious"
-    assert 0.40 <= res.score <= 0.85
+    assert 0.40 <= res.score <= 0.80
     assert len(res.boxes) >= 2
     # Check that both original and duplicated stamp areas are covered
     left_hit = any(b.x < 280 and b.x + b.w > 120 and b.y < 920 and b.y + b.h > 820 for b in res.boxes)
     right_hit = any(b.x < 780 and b.x + b.w > 620 and b.y < 920 and b.y + b.h > 820 for b in res.boxes)
     assert left_hit and right_hit
+
+
+def test_copy_move_repeated_header_footer_logo_is_inconclusive(tmp_path: Path) -> None:
+    logo_doc = tmp_path / "repeated_logo.png"
+    img = _make_clean_document(logo_doc)
+    logo = Image.new("RGB", (150, 90), color=(240, 246, 255))
+    ldraw = ImageDraw.Draw(logo)
+    ldraw.rectangle([3, 3, 146, 86], outline=(15, 70, 140), width=3)
+    ldraw.polygon([(20, 70), (45, 20), (70, 70)], outline=(15, 70, 140), width=2)
+    ldraw.text((78, 28), "ACME", fill=(15, 70, 140))
+    ldraw.text((78, 50), "CORP", fill=(40, 40, 40))
+    # Place identical company logo in header (top margin) and footer (bottom margin)
+    img.paste(logo, (680, 30))
+    img.paste(logo, (680, 960))
+    img.save(logo_doc, format="PNG")
+
+    res = CopyMoveDetector().analyze(logo_doc, [logo_doc], {})[0]
+    assert res.status in {"passed", "inconclusive"}
+    assert res.score <= 0.30
 
 
 def test_copy_move_multipage_pdf_pages(tmp_path: Path) -> None:

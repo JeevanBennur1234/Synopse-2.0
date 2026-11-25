@@ -121,3 +121,14 @@ def test_ela_blank_and_invalid_input(tmp_path: Path) -> None:
     corrupt_path.write_bytes(b"not a real jpeg")
     res_corrupt = ELADetector().analyze(corrupt_path, [corrupt_path], {})[0]
     assert res_corrupt.status == "error"
+
+
+def test_ela_benign_recompression_passes(tmp_path: Path) -> None:
+    orig = tmp_path / "orig.jpg"
+    _make_synthetic_invoice(orig)
+    for q in (60, 75, 95):
+        recomp = tmp_path / f"recomp_{q}.jpg"
+        with Image.open(orig) as im:
+            im.save(recomp, format="JPEG", quality=q)
+        res = ELADetector().analyze(recomp, [recomp], {})[0]
+        assert res.status == "passed"
