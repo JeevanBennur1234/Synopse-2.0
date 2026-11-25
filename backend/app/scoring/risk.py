@@ -80,7 +80,7 @@ def _score_to_level(score: float) -> str:
     return "low"
 
 
-def evaluate(runs: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]]:
+def evaluate(runs: list[dict[str, Any]], core_checks: tuple[str, ...] = ()) -> tuple[dict[str, Any], dict[str, Any]]:
     """Compute heuristic risk score, structural risk-level floor, and finding annotations."""
     scores: dict[str, float] = {}
     excluded = {
@@ -139,6 +139,16 @@ def evaluate(runs: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]
 
     observed = sum(WEIGHTS[k] for k in scores)
     coverage = observed / applicable if applicable else 0.0
+    core = {
+        f["name"]: f["status"]
+        for run in annotated_runs for f in run.get("findings", [])
+        if f.get("name") in core_checks
+    }
+    required = [name for name in core_checks if core.get(name) != "not_applicable"]
+    missing_core = any(core.get(name) not in ("passed", "suspicious") for name in required)
+    if required:
+        coverage = sum(core.get(name) in ("passed", "suspicious") for name in required) / len(required)
+
 
     # Determine structural floor from non-inconclusive strong findings.
     if len(strong_groups) >= 2:
@@ -150,7 +160,9 @@ def evaluate(runs: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]
 
     ela_only = bool(suspicious_detectors) and suspicious_detectors <= LOW_CONFIDENCE_DETECTORS
 
-    if coverage < MIN_COVERAGE:
+    if (missing_core and not suspicious_detectors) or (
+        not core_checks and coverage < MIN_COVERAGE
+    ) or not observed:
         risk = dict(risk_score=None, risk_level="inconclusive", coverage=round(coverage, 4))
         meta = dict(
             floor_applied=False,
@@ -166,7 +178,7 @@ def evaluate(runs: list[dict[str, Any]]) -> tuple[dict[str, Any], dict[str, Any]
     weighted_level = _score_to_level(score)
 
     # Partial analysis with no strong finding cannot establish low overall risk.
-    if coverage < 0.999 and weighted_level == "low" and floor_level == "low":
+    if not core_checks and coverage < 0.999 and weighted_level == "low" and floor_level == "low":
         risk = dict(risk_score=None, risk_level="inconclusive", coverage=round(coverage, 4))
         meta = dict(
             floor_applied=False,

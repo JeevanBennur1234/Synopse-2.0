@@ -16,6 +16,7 @@ from typing import Any
 
 from app.detectors.consistency.arithmetic import (
     DEFAULT_ROUNDING_TOLERANCE,
+    has_low_field_confidence,
     LINE_ITEM_TOLERANCE,
     parse_decimal_candidate,
     resolve_candidate_field,
@@ -189,6 +190,18 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
     sup_str = str(supplier_state[0] if isinstance(supplier_state, list) and supplier_state else supplier_state).strip() if supplier_state else ""
     pos_str = str(pos_state[0] if isinstance(pos_state, list) and pos_state else pos_state).strip() if pos_state else ""
 
+    gstins = fields.get("gstin") or []
+    gstins = [gstins] if isinstance(gstins, str) else gstins
+    state_codes = {value[:2] for value in gstins if isinstance(value, str)
+                   and len(value) == 15 and value[:2] in GST_STATE_CODES}
+    pos_values = [pos_state] if isinstance(pos_state, str) else (pos_state or [])
+    pos_codes = {_normalize_state_key(str(value)) for value in pos_values}
+    pos_code = next(iter(pos_codes)) if len(pos_codes) == 1 else ""
+    gst_state_mismatch = (
+        has_cgst and has_sgst and cgst > 0 and sgst > 0
+        and pos_code in GST_STATE_CODES and len(state_codes) == 1 and pos_code not in state_codes
+    )
+
     if has_igst and has_intra:
         results.append(
             DetectorResult(
@@ -203,6 +216,16 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                 boxes=tax_boxes,
             )
         )
+    elif gst_state_mismatch:
+        gst_state = GST_STATE_CODES[next(iter(state_codes))]
+        results.append(DetectorResult(
+            name="gst_jurisdiction_consistency", score=0.55, confidence=0.65,
+            status="suspicious",
+            evidence=(f"CGST and SGST are charged, but GSTIN state '{gst_state}' differs from "
+                      f"explicit place of supply '{pos_str}'. This may be legitimate for special cases; "
+                      "verify manually."),
+            boxes=tax_boxes,
+        ))
     elif sup_str and pos_str:
         # Both locations explicitly known (normalize state codes and names)
         sup_norm = _normalize_state_key(sup_str)
@@ -308,7 +331,29 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
     if cess_status == "resolved" and cess is not None:
         total_tax += cess
 
-    if sub_status == "resolved" and subtotal is not None and subtotal > Decimal("0.00") and tax_count > 0:
+    pages = fields.get("_pages")
+    text = "\n".join(page.get("text", "") for page in pages or ())
+    rate_present = bool(raw_rate or re.search(
+        r"\b(?:gst|tax)\s+rate\b|\b(?:cgst|sgst|igst|utgst|cess)\b[ \t(]*\d+(?:\.\d+)?\s*%",
+        text, re.I,
+    ))
+    breakdown_present = bool(tax_count or cess_status != "missing" or rate_present or re.search(
+        r"\b(?:cgst|sgst|igst|utgst|cess|(?:gst|tax)\s+(?:breakdown|amount))\b",
+        text, re.I,
+    ))
+    amount_keys = ("subtotal", "cgst", "sgst", "igst", "utgst", "cess")
+    if pages and not breakdown_present and text.strip():
+        results.append(DetectorResult(
+            name="tax_rate_arithmetic", score=0.0, confidence=0.0,
+            status="not_applicable", evidence="No tax breakdown or rate is printed.", boxes=[],
+        ))
+    elif has_low_field_confidence(fields, amount_keys):
+        results.append(DetectorResult(
+            name="tax_rate_arithmetic", score=0.0, confidence=0.0,
+            status="inconclusive", evidence="A contributing tax amount or subtotal has low OCR confidence.",
+            boxes=tax_boxes,
+        ))
+    elif sub_status == "resolved" and subtotal is not None and subtotal > Decimal("0.00") and (tax_count or cess_status == "resolved"):
         if has_mixed_rates:
             results.append(
                 DetectorResult(
@@ -369,6 +414,14 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                         boxes=tax_boxes,
                     )
                 )
+            elif pages and not rate_present:
+                results.append(DetectorResult(
+                    name="tax_rate_arithmetic", score=0.0, confidence=0.0,
+                    status="not_applicable",
+                    evidence=(f"No rate is printed to verify against the effective rate of "
+                              f"{effective_rate:.2f}%. Extracted tax amounts remain part of the invoice total check."),
+                    boxes=tax_boxes,
+                ))
             else:
                 results.append(
                     DetectorResult(

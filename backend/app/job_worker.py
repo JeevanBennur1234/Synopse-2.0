@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 import sys
 
@@ -32,12 +33,26 @@ def run_pipeline(job_id: str, source: Path) -> dict:
     warnings.extend(table_warnings)
 
     findings, runs, detector_warnings = execute(source, pages, context)
-    risk, risk_meta = evaluate(runs)
+    is_invoice = not tables.get("_bank_transactions") and bool(
+        fields.get("invoice_number") or fields.get("invoice_date")
+        or (fields.get("subtotal") and fields.get("total"))
+        or any(re.search(r"\binvoice\b", " ".join(p["text"].splitlines()[:6]), re.I)
+               for p in pages)
+    )
+    core_checks = (
+        "invoice_arithmetic_consistency", "invoice_line_items_arithmetic", "tax_rate_arithmetic"
+    ) if is_invoice else ()
+    risk, risk_meta = evaluate(runs, core_checks)
+    missing_core = risk["risk_level"] == "inconclusive" and bool(core_checks) and risk["coverage"] < 1
+
 
     result: dict = {}
     result.update(**risk)
+    result["insufficient_core_evidence"] = missing_core
     result["review_required"] = (
-        any(f.status == "suspicious" for f in findings) or risk["risk_level"] == "inconclusive"
+        any(f.status == "suspicious" or (
+            f.status == "inconclusive" and f.evidence.startswith("Possible mismatch, verify manually")
+        ) for f in findings) or risk["risk_level"] == "inconclusive"
     )
     result["check_status_counts"] = {
         status: sum(f.status == status for f in findings)

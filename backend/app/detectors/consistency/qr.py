@@ -171,7 +171,7 @@ def validate_qr_consistency(
                 name="qr_code_consistency",
                 score=0.0,
                 confidence=0.0,
-                status="inconclusive",
+                status="not_applicable" if pages else "inconclusive",
                 evidence=(
                     "No QR code detected or extracted from document. "
                     "QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False."

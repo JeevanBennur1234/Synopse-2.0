@@ -32,7 +32,7 @@ def parse_decimal_candidate(raw: Any) -> Decimal | None:
     val_str = str(raw).strip()
     if not val_str:
         return None
-    # Strip currency symbols and commas: "₹ 1,000.50" -> "1000.50"
+    # Strip currency symbols and commas: "â‚¹ 1,000.50" -> "1000.50"
     cleaned = CLEAN_NUMERIC_RE.sub("", val_str)
     if not cleaned or cleaned in ("-", "."):
         return None
@@ -197,19 +197,6 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                 boxes=all_boxes,
             )
         )
-    elif has_low_field_confidence(
-        fields, ("subtotal", "total", "discount", "cgst", "sgst", "utgst", "igst", "cess")
-    ):
-        results.append(
-            DetectorResult(
-                name="invoice_arithmetic_consistency",
-                score=0.0,
-                confidence=0.0,
-                status="inconclusive",
-                evidence="A contributing invoice amount has OCR confidence below 0.65.",
-                boxes=all_boxes,
-            )
-        )
     else:
         # Compute taxes (CGST, SGST, UTGST, IGST, and Cess)
         tax_sum = Decimal("0.00")
@@ -230,7 +217,19 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
         expected_total = subtotal - disc_val + tax_sum  # type: ignore[operator]
         discrepancy = abs(total - expected_total)  # type: ignore[operator]
 
-        if discrepancy <= DEFAULT_ROUNDING_TOLERANCE:
+        low_confidence = has_low_field_confidence(
+            fields, ("subtotal", "total", "discount", "cgst", "sgst", "utgst", "igst", "cess")
+        )
+        if low_confidence:
+            evidence = (
+                f"Possible mismatch, verify manually: expected {expected_total}, read {total}. "
+                if discrepancy > DEFAULT_ROUNDING_TOLERANCE else ""
+            ) + "A contributing invoice amount has OCR confidence below 0.65."
+            results.append(DetectorResult(
+                name="invoice_arithmetic_consistency", score=0.0, confidence=0.0,
+                status="inconclusive", evidence=evidence, boxes=all_boxes,
+            ))
+        elif discrepancy <= DEFAULT_ROUNDING_TOLERANCE:
             evidence_msg = (
                 f"Invoice total arithmetic is consistent: subtotal ({subtotal})"
                 + (f" - discount ({disc_val})" if disc_status == "resolved" else "")
@@ -269,13 +268,15 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
     # 2. Line items arithmetic check
     line_items = fields.get("_line_items")
     if not line_items or not isinstance(line_items, list):
+        table_absent = fields.get("_line_items_present") is False
         results.append(
             DetectorResult(
                 name="invoice_line_items_arithmetic",
                 score=0.0,
                 confidence=0.0,
-                status="inconclusive",
-                evidence="Optional line items (_line_items) not present in extracted document fields.",
+                status="not_applicable" if table_absent else "inconclusive",
+                evidence=("No labelled line-item table was found." if table_absent else
+                          "A line-item table could not be extracted reliably."),
                 boxes=[],
             )
         )
@@ -303,13 +304,14 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                 except (ValueError, TypeError):
                     pass
 
-            if qty is None or price is None or amount is None:
+            has_product = "quantity" in item and "unit_price" in item
+            if amount is None or (has_product and (qty is None or price is None)):
                 line_item_errors.append(
                     f"'{desc}': missing or unparseable numeric fields (qty={item.get('quantity')}, price={item.get('unit_price')}, amount={item.get('amount')})"
                 )
                 continue
 
-            expected_amt = qty * price
+            expected_amt = qty * price if has_product else amount
             diff = abs(amount - expected_amt)
             if diff > LINE_ITEM_TOLERANCE:
                 line_item_errors.append(
@@ -337,10 +339,19 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                     score=0.0,
                     confidence=0.0,
                     status="inconclusive",
-                    evidence="A contributing line item or subtotal has OCR confidence below 0.65.",
+                    evidence=(
+                        ("Possible mismatch, verify manually: " + "; ".join(line_item_errors) + ". ")
+                        if line_item_errors else ""
+                    ) + "A contributing line item or subtotal has OCR confidence below 0.65.",
                     boxes=line_boxes,
                 )
             )
+        elif not line_item_errors and sub_status != "resolved":
+            results.append(DetectorResult(
+                name="invoice_line_items_arithmetic", score=0.0, confidence=0.0,
+                status="inconclusive", evidence="No reliable subtotal to compare with the line-item sum.",
+                boxes=line_boxes,
+            ))
         elif line_item_errors:
             results.append(
                 DetectorResult(
@@ -360,7 +371,7 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                     confidence=0.90,
                     status="passed",
                     evidence=(
-                        f"Validated {len(line_items)} line items: quantity x unit_price matches line amount for all items, "
+                        f"Validated {len(line_items)} line items: checked quantity x unit price where both are printed, "
                         + (
                             f"and total sum ({computed_subtotal}) matches subtotal ({subtotal})."
                             if (sub_status == "resolved" and subtotal is not None)

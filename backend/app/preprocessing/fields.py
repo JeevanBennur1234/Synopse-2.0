@@ -39,3 +39,70 @@ def locate(pages, fields):
                         matches.append({"value":value,"page":page["page"],"x":word["x"],"y":word["y"],"w":word["w"],"h":word["h"],"bbox":[word["x"],word["y"],word["w"],word["h"]],"confidence":word["confidence"]})
         out[key]=matches
     return out
+
+# Longer aliases take priority over generic "total" and "taxable" tokens.
+AMOUNT_LABELS = {
+    "grand total": "total", "invoice total": "total", "total amount": "total",
+    "sub total": "subtotal", "subtotal": "subtotal", "taxable amount": "subtotal",
+    "taxable value": "subtotal", "cgst": "cgst", "sgst": "sgst", "igst": "igst",
+    "utgst": "utgst", "cess": "cess", "discount": "discount", "total": "total",
+}
+NUMBER_CELL = re.compile(r"(?:INR|Rs\.?|\u20b9)?[ \t]*(-?\d[\d,]*(?:\.\d{1,2})?)", re.I)
+
+
+def word_rows(words, vertical_tolerance=0.45):
+    """Group rendered words by vertical center, independently of PDF text order."""
+    rows = []
+    for word in sorted(words, key=lambda w: (w["y"] + w["h"] / 2, w["x"])):
+        center = word["y"] + word["h"] / 2
+        if rows:
+            anchor = rows[-1][0]
+            if abs(center - anchor["y"] - anchor["h"] / 2) <= max(3, min(word["h"], anchor["h"]) * vertical_tolerance):
+                rows[-1].append(word)
+                continue
+        rows.append([word])
+    return [sorted(row, key=lambda w: w["x"]) for row in rows]
+
+
+def extract_native_amounts(pages):
+    fields = {}
+    for page in pages:
+        if page.get("method") != "native_pdf":
+            continue
+        rows = word_rows(page.get("words", []))
+        for idx, row in enumerate(rows):
+            tokens = [w["text"].casefold().strip(":") for w in row]
+            labels = []
+            i = 0
+            while i < len(row):
+                pair = " ".join(tokens[i:i + 2])
+                end = i + (2 if pair in AMOUNT_LABELS else 1)
+                key = AMOUNT_LABELS.get(pair if end == i + 2 else tokens[i])
+                if key:
+                    labels.append((i, end, key))
+                i = end
+
+            for index, (start, end, key) in enumerate(labels):
+                left = row[start]["x"]
+                last = row[end - 1]
+                right = last["x"] + last["w"]
+                limit = row[labels[index + 1][0]]["x"] if index + 1 < len(labels) else page["width"]
+                height = row[start]["h"]
+                candidates = []
+                for word in row[end:]:
+                    match = NUMBER_CELL.fullmatch(word["text"])
+                    if match and right <= word["x"] < limit:
+                        candidates.append((word["x"] - right, match[1]))
+                if not candidates and idx + 1 < len(rows):
+                    below = rows[idx + 1]
+                    gap = below[0]["y"] - row[start]["y"]
+                    if 0 < gap <= 2.5 * height:
+                        for word in below:
+                            match = NUMBER_CELL.fullmatch(word["text"])
+                            if match and left - height <= word["x"] < min(limit, right + 2 * height):
+                                # Prefer alignment with the label's right edge, then its left edge.
+                                align = min(abs(word["x"] + word["w"] - right), abs(word["x"] - left))
+                                candidates.append((align, match[1]))
+                if candidates:
+                    fields.setdefault(key, []).append(min(candidates)[1])
+    return {key: list(dict.fromkeys(values)) for key, values in fields.items()}

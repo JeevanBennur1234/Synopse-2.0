@@ -64,6 +64,7 @@ class JobResult(BaseModel):
     job_id: str
     status: Literal["queued", "running", "completed", "failed"]
     review_required: bool = False
+    insufficient_core_evidence: bool = False
     check_status_counts: dict[str, int] = Field(default_factory=dict)
     risk_score: float | None = None
     risk_level: Literal["low", "medium", "high", "inconclusive"]
