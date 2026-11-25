@@ -11,7 +11,13 @@ class Engine:
     detector: Detector | None = None
 
 # Explicit registration only. Never execute test detectors in production.
-ENGINES = tuple(Engine(name) for name in ("visual", "file_forensics", "consistency"))
+from app.detectors.visual.pipeline import VisualForensicsDetector
+from app.detectors.consistency import ConsistencyDetector
+from app.detectors.file_forensics import PDFFileForensicsDetector
+
+ENGINES = (Engine("visual", VisualForensicsDetector()),
+           Engine("file_forensics", PDFFileForensicsDetector()),
+           Engine("consistency", ConsistencyDetector()))
 
 def execute(source: Path, pages: list[dict], fields: dict, engines=None):
     findings, runs, warnings = [], [], []
@@ -34,6 +40,8 @@ def execute(source: Path, pages: list[dict], fields: dict, engines=None):
                         raise ValueError("Bounding box outside rendered page")
             findings.extend(results)
             status = "completed" if any(r.status in ("passed","suspicious") for r in results) else "inconclusive"
+            if results and all(r.status == "not_applicable" for r in results):
+                status = "not_applicable"
             runs.append(dict(engine=engine.name,status=status,finding_count=len(results), findings=[r.model_dump() for r in results]))
             if status == "inconclusive":
                 warnings.append(f"{engine.name}: no conclusive findings")

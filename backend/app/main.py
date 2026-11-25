@@ -8,8 +8,11 @@ from typing import Literal
 from app.schemas import DetectorResult
 from app.preprocessing.document import validate, process
 from app.preprocessing.fields import locate
+from app.preprocessing.tables import extract_tables
 from app.pipeline.orchestrator import execute
 from app.scoring.risk import calculate
+from app.adapters.gst_registry import check_registry, RegistryCheck
+from app.explainability import explain, Explanation
 
 ROOT = Path(os.environ.get("KAVACH_DATA", str(Path(__file__).resolve().parents[1] / "uploads")))
 ROOT.mkdir(parents=True, exist_ok=True)
@@ -47,12 +50,14 @@ class PageResult(BaseModel):
 
 class EngineRun(BaseModel):
     engine: str
-    status: Literal['completed', 'inconclusive', 'error', 'unavailable']
+    status: Literal['completed', 'inconclusive', 'error', 'unavailable', 'not_applicable']
     finding_count: int
 
 class JobResult(BaseModel):
     job_id: str
     status: Literal["queued", "running", "completed", "failed"]
+    review_required: bool = False
+    check_status_counts: dict[str, int] = Field(default_factory=dict)
     risk_score: float | None = None
     risk_level: Literal["low", "medium", "high", "inconclusive"]
     coverage: float
@@ -62,6 +67,8 @@ class JobResult(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     engine_runs: list[EngineRun] = Field(default_factory=list)
     field_locations: dict[str, list[dict]] = Field(default_factory=dict)
+    registry_checks: list[RegistryCheck] = Field(default_factory=list)
+    explanation: Explanation | None = None
 
 
 def connect():
@@ -88,10 +95,27 @@ def run(job, source):
         pages, fields, warnings = process(source)
         for page in pages:
             page["preview_url"] = f'/result/{job["job_id"]}/pages/{page["page"]}'
-        findings, runs, detector_warnings = execute(source, pages, fields)
+        locations = locate(pages, fields)
+        context = dict(fields, _pages=pages, _field_locations=locations)
+        tables, table_warnings = extract_tables(pages)
+        context.update(tables)
+        warnings.extend(table_warnings)
+        findings, runs, detector_warnings = execute(source, pages, context)
         risk = calculate(runs)
         job.update(**risk)
-        job.update(status="completed", pages=pages, fields=fields, field_locations=locate(pages, fields), findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
+        job["review_required"] = any(f.status == "suspicious" for f in findings) or risk["risk_level"] == "inconclusive"
+        job["check_status_counts"] = {status: sum(f.status == status for f in findings) for status in ("passed","suspicious","inconclusive","not_applicable","error")}
+        job.update(status="completed", pages=pages, fields=fields, field_locations=locations, findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
+        try:
+            job["registry_checks"] = [r.model_dump() for r in check_registry(fields, locations)]
+        except Exception:
+            logging.exception("Mock registry lookup failed")
+            job["warnings"].append("Mock registry lookup unavailable.")
+        try:
+            job["explanation"] = explain(risk, findings, runs, job["warnings"]).model_dump()
+        except Exception:
+            logging.exception("Explanation generation failed")
+            job["warnings"].append("Explanation unavailable.")
     except Exception:
         logging.exception("Processing failed for job %s", job["job_id"])
         job.update(status="failed", warnings=["Document processing failed."])

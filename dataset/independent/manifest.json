@@ -1,0 +1,38 @@
+[
+  {
+    "filename": "independent_invoice_01.pdf",
+    "label": "clean",
+    "expected_anomalies": []
+  },
+  {
+    "filename": "independent_invoice_02.pdf",
+    "label": "clean",
+    "expected_anomalies": []
+  },
+  {
+    "filename": "independent_invoice_03.pdf",
+    "label": "clean",
+    "expected_anomalies": []
+  },
+  {
+    "filename": "independent_invoice_04.pdf",
+    "label": "tampered",
+    "expected_anomalies": [
+      "grand_total_mismatch"
+    ]
+  },
+  {
+    "filename": "independent_invoice_05.pdf",
+    "label": "tampered",
+    "expected_anomalies": [
+      "grand_total_mismatch"
+    ]
+  },
+  {
+    "filename": "independent_invoice_06.pdf",
+    "label": "tampered",
+    "expected_anomalies": [
+      "grand_total_mismatch"
+    ]
+  }
+]
