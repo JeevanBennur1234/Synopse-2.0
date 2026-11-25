@@ -6,8 +6,8 @@ import io
 from pathlib import Path
 from typing import Any
 
-import cv2
 import numpy as np
+import cv2
 from PIL import Image
 
 from app.schemas import BoundingBox, DetectorResult
@@ -15,6 +15,7 @@ from app.schemas import BoundingBox, DetectorResult
 JPEG_EXTENSIONS = {".jpg", ".jpeg"}
 DEFAULT_RECOMPRESS_QUALITY = 90
 MIN_IMAGE_DIM = 64
+BLOCK_SIZE = 8
 
 
 def _clamp_box(
@@ -33,23 +34,27 @@ def _clamp_box(
 
 
 def _compute_ela_map(rgb_image: np.ndarray, quality: int = DEFAULT_RECOMPRESS_QUALITY) -> np.ndarray:
-    """Recompress an RGB uint8 image as JPEG in memory and return 2D float32 error map."""
+    """Recompress an RGB uint8 image as JPEG in memory and return 2D luminance (Y) error map.
+
+    Using luminance (Y) avoids false positives from 4:2:0 chroma subsampling on
+    colored stamps/logos while preserving 8x8 DCT quantization ringing on spliced text.
+    """
     pil_img = Image.fromarray(rgb_image, mode="RGB")
     buffer = io.BytesIO()
     pil_img.save(buffer, format="JPEG", quality=quality)
     buffer.seek(0)
     with Image.open(buffer) as recomp_pil:
-        recomp_rgb = np.asarray(recomp_pil.convert("RGB"), dtype=np.float32)
+        recomp_rgb = np.asarray(recomp_pil.convert("RGB"), dtype=np.uint8)
 
-    diff = np.abs(rgb_image.astype(np.float32) - recomp_rgb)
-    # Mean absolute difference across RGB channels
-    return np.mean(diff, axis=2)
+    y_orig = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2YCrCb)[:, :, 0].astype(np.float32)
+    y_recomp = cv2.cvtColor(recomp_rgb, cv2.COLOR_RGB2YCrCb)[:, :, 0].astype(np.float32)
+    return np.abs(y_orig - y_recomp)
 
 
 def _analyze_single_image(
     img_path: Path, page_idx: int, target_size: tuple[int, int] | None = None
 ) -> tuple[float, float, str, list[BoundingBox], str]:
-    """Run ELA on one image and return (score, confidence, status, boxes, detail)."""
+    """Run 8x8-block edge-normalized ELA on one image."""
     with Image.open(img_path) as pil_img:
         rgb = np.asarray(pil_img.convert("RGB"), dtype=np.uint8)
 
@@ -63,7 +68,6 @@ def _analyze_single_image(
             f"Page {page_idx}: image too small ({orig_w}x{orig_h}) for reliable ELA.",
         )
 
-    # Check for blank or nearly uniform images
     if float(np.std(rgb)) < 2.0:
         return (
             0.0,
@@ -75,70 +79,110 @@ def _analyze_single_image(
 
     ela_map = _compute_ela_map(rgb, quality=DEFAULT_RECOMPRESS_QUALITY)
 
-    # Smooth locally to measure patch-level compression error rather than thin text strokes.
-    kernel_size = max(15, (min(orig_h, orig_w) // 40) | 1)
-    kernel_size = min(kernel_size, 31)
-    local_ela = cv2.boxFilter(ela_map, ddepth=-1, ksize=(kernel_size, kernel_size))
-
-    # Suppress normal high-contrast text edges by attenuating pixels with very high local edge
-    # density relative to their neighborhood, while keeping genuine patch-level ELA shifts.
+    # Measure local edge density so normal crisp text & graphic stamps are not flagged
+    # solely for having high contrast.
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY).astype(np.float32)
     grad_x = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
     grad_y = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
     grad_mag = np.sqrt(grad_x * grad_x + grad_y * grad_y)
-    local_grad = cv2.boxFilter(grad_mag, ddepth=-1, ksize=(kernel_size, kernel_size))
 
-    # Compute residual ELA above what local edge density explains.
-    # Fit a simple robust linear baseline on non-zero gradient regions if possible.
-    flat_ela = local_ela.ravel()
-    flat_grad = local_grad.ravel()
-    med_ela = float(np.median(flat_ela))
-    mad_ela = float(np.median(np.abs(flat_ela - med_ela)))
+    # Aggregate on JPEG's native 8x8 DCT block grid to preserve 8x8 blockiness / ringing
+    # around spliced text without diluting it over large white-paper windows.
+    bh = orig_h // BLOCK_SIZE
+    bw = orig_w // BLOCK_SIZE
+    if bh < 4 or bw < 4:
+        return (
+            0.0,
+            0.1,
+            "inconclusive",
+            [],
+            f"Page {page_idx}: too few 8x8 blocks ({bw}x{bh}) for ELA.",
+        )
 
-    # Robust ratio adjustment: high-contrast text increases both grad and ELA slightly.
-    slope = float(np.median(flat_ela / (flat_grad + 10.0)))
-    adjusted_ela = np.maximum(0.0, local_ela - 0.5 * slope * local_grad)
+    blk_ela = ela_map[: bh * BLOCK_SIZE, : bw * BLOCK_SIZE].reshape(
+        bh, BLOCK_SIZE, bw, BLOCK_SIZE
+    ).mean(axis=(1, 3))
+    blk_grad = grad_mag[: bh * BLOCK_SIZE, : bw * BLOCK_SIZE].reshape(
+        bh, BLOCK_SIZE, bw, BLOCK_SIZE
+    ).mean(axis=(1, 3))
 
-    adj_med = float(np.median(adjusted_ela))
-    adj_mad = float(np.median(np.abs(adjusted_ela - adj_med)))
-    scale = max(1.4826 * adj_mad, 0.35)
-    z_map = (adjusted_ela - adj_med) / scale
+    # Smooth slightly in block space (3x3 = 24x24 px) to capture contiguous region elevation
+    local_blk_ela = cv2.boxFilter(blk_ela, ddepth=-1, ksize=(3, 3))
+    local_blk_grad = cv2.boxFilter(blk_grad, ddepth=-1, ksize=(3, 3))
 
-    # Threshold for strong localized compression anomalies
-    z_thresh = 4.5
-    min_abs_ela = max(med_ela + 2.5, 4.0)
-    anomaly_mask = ((z_map > z_thresh) & (local_ela > min_abs_ela)).astype(np.uint8)
+    med_ela = float(np.median(local_blk_ela))
+    mad_ela = float(np.median(np.abs(local_blk_ela - med_ela)))
 
-    # Clean up tiny isolated specks
-    morph_k = cv2.getStructuringElement(cv2.MORPH_RECT, (7, 7))
-    anomaly_mask = cv2.morphologyEx(anomaly_mask, cv2.MORPH_OPEN, morph_k)
-    anomaly_mask = cv2.morphologyEx(anomaly_mask, cv2.MORPH_CLOSE, morph_k)
+    # Fit ELA-per-edge-unit ONLY on active blocks (where text/graphics exist)
+    active_mask = local_blk_grad > 4.0
+    if int(np.sum(active_mask)) >= 20:
+        active_ratios = local_blk_ela[active_mask] / (local_blk_grad[active_mask] + 15.0)
+        med_ratio = float(np.median(active_ratios))
+        slope = 1.35 * med_ratio
+        expected_ela = slope * (local_blk_grad + 15.0)
+    else:
+        expected_ela = np.full_like(local_blk_ela, med_ela)
 
-    num_labels, _, stats, _ = cv2.connectedComponentsWithStats(anomaly_mask, connectivity=8)
+    excess_ela = np.maximum(0.0, local_blk_ela - expected_ela)
 
-    min_area = max(250, int(0.0005 * orig_w * orig_h))
-    max_area = int(0.45 * orig_w * orig_h)  # Avoid flagging whole-page global recompression
+    # Compute robust z-score on active blocks so 90% blank white paper doesn't collapse MAD to 0
+    if int(np.sum(active_mask)) >= 20:
+        act_excess = excess_ela[active_mask]
+        exc_med = float(np.median(act_excess))
+        exc_mad = float(np.median(np.abs(act_excess - exc_med)))
+        scale = max(1.4826 * exc_mad, 0.22)
+    else:
+        exc_med = float(np.median(excess_ela))
+        exc_mad = float(np.median(np.abs(excess_ela - exc_med)))
+        scale = max(1.4826 * exc_mad, 0.22)
+
+    z_map = (excess_ela - exc_med) / scale
+
+    z_thresh = 3.8
+    min_abs_excess = 0.75
+    min_abs_blk_ela = max(med_ela + 1.8, 2.35)
+    anomaly_blk = (
+        (z_map > z_thresh)
+        & (excess_ela > min_abs_excess)
+        & (local_blk_ela > min_abs_blk_ela)
+    ).astype(np.uint8)
+
+    # Bridge 1-block gaps between words on the same spliced line
+    close_k = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 2))
+    anomaly_blk = cv2.morphologyEx(anomaly_blk, cv2.MORPH_CLOSE, close_k)
+
+    num_labels, _, stats, _ = cv2.connectedComponentsWithStats(anomaly_blk, connectivity=8)
+
+    min_blk_area = 4
+    max_blk_area = int(0.45 * bw * bh)
 
     page_w, page_h = target_size if target_size else (orig_w, orig_h)
-    scale_x = page_w / orig_w
-    scale_y = page_h / orig_h
+    scale_x = page_w / float(orig_w)
+    scale_y = page_h / float(orig_h)
 
     boxes: list[BoundingBox] = []
     peak_z = 0.0
-    total_flagged_area = 0
+    total_flagged_blocks = 0
 
     for label_idx in range(1, num_labels):
-        bx, by, bw, bh, area = stats[label_idx]
-        if area < min_area or area > max_area:
+        bx, by, b_w, b_h, area = stats[label_idx]
+        # Reject 1-block-thin horizontal/vertical rule lines
+        if b_w < 2 or b_h < 2:
             continue
-        region_z = float(np.max(z_map[by : by + bh, bx : bx + bw]))
+        if area < min_blk_area or area > max_blk_area:
+            continue
+        region_z = float(np.max(z_map[by : by + b_h, bx : bx + b_w]))
         peak_z = max(peak_z, region_z)
-        total_flagged_area += int(area)
+        total_flagged_blocks += int(area)
+        px = bx * BLOCK_SIZE
+        py = by * BLOCK_SIZE
+        pw = b_w * BLOCK_SIZE
+        ph = b_h * BLOCK_SIZE
         clamped = _clamp_box(
-            int(round(bx * scale_x)),
-            int(round(by * scale_y)),
-            max(1, int(round(bw * scale_x))),
-            max(1, int(round(bh * scale_y))),
+            int(round(px * scale_x)),
+            int(round(py * scale_y)),
+            max(1, int(round(pw * scale_x))),
+            max(1, int(round(ph * scale_y))),
             page_w,
             page_h,
             page_idx,
@@ -147,24 +191,22 @@ def _analyze_single_image(
             boxes.append(clamped)
 
     if boxes:
-        area_ratio = total_flagged_area / float(orig_w * orig_h)
-        # Bound score strictly below 0.85 since ELA alone is not proof of forgery
-        raw_score = 0.42 + min(0.28, (peak_z - z_thresh) * 0.04) + min(0.15, area_ratio * 2.0)
+        area_ratio = total_flagged_blocks / float(bw * bh)
+        raw_score = 0.42 + min(0.28, (peak_z - z_thresh) * 0.03) + min(0.15, area_ratio * 2.0)
         score = float(np.clip(raw_score, 0.35, 0.85))
-        confidence = float(np.clip(0.50 + min(0.25, (peak_z - z_thresh) * 0.03), 0.50, 0.78))
+        confidence = float(np.clip(0.52 + min(0.25, (peak_z - z_thresh) * 0.025), 0.52, 0.78))
         detail = (
             f"Page {page_idx}: detected {len(boxes)} localized JPEG error-level outlier(s) "
-            f"(peak z={peak_z:.1f}, median ELA={med_ela:.2f}, MAD={mad_ela:.2f})."
+            f"(peak z={peak_z:.1f}, median block ELA={med_ela:.2f}, MAD={mad_ela:.2f})."
         )
         return score, confidence, "suspicious", boxes, detail
 
-    # No localized anomaly found
-    global_p95 = float(np.percentile(flat_ela, 95))
+    global_p95 = float(np.percentile(local_blk_ela, 95))
     score = float(np.clip((global_p95 - med_ela) / 40.0, 0.0, 0.18))
     confidence = 0.65
     detail = (
         f"Page {page_idx}: error levels appear spatially consistent "
-        f"(median ELA={med_ela:.2f}, p95={global_p95:.2f})."
+        f"(median block ELA={med_ela:.2f}, p95={global_p95:.2f})."
     )
     return score, confidence, "passed", [], detail
 
@@ -220,7 +262,6 @@ class ELADetector:
                 )
             ]
 
-        # Determine target page dimensions from rendered pages if provided.
         target_size: tuple[int, int] | None = None
         if pages:
             try:

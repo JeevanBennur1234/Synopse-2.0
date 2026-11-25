@@ -10,6 +10,7 @@ from app.detectors.image_metadata.analyzer import ImageMetadataDetector
 from app.detectors.visual.copy_move import CopyMoveDetector
 from app.detectors.visual.ela import ELADetector
 from app.detectors.visual.noise import NoiseInconsistencyDetector
+from app.detectors.visual.typography import TypographyDetector
 from app.schemas import DetectorResult
 
 
@@ -25,6 +26,7 @@ class VisualForensicsDetector:
                 CopyMoveDetector(),
                 NoiseInconsistencyDetector(),
                 ImageMetadataDetector(),
+                TypographyDetector(),
             ]
         )
 

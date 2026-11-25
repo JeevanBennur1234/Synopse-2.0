@@ -257,17 +257,48 @@ def _analyze_page(
                 pair=[_clamp_box(x,y,w,h,orig_w,orig_h,page_idx) for x,y,w,h in (a,b)]
                 return "suspicious",0.65,0.75,[b for b in pair if b is not None],f"Page {page_idx}: exact duplicated ink component; repeated logos or stamps may be legitimate."
     if boxes:
+        # Contextual reliability check: header/footer logos or 3+ repetitive layout elements
+        # cannot be assumed to be forgery from pixel similarity alone.
+        margin_branding_only = True
+        for i in range(0, len(boxes), 2):
+            if i + 1 >= len(boxes):
+                margin_branding_only = False
+                break
+            b1, b2 = boxes[i], boxes[i + 1]
+            c1_y = (b1.y + b1.h * 0.5) / float(orig_h)
+            c2_y = (b2.y + b2.h * 0.5) / float(orig_h)
+            in_margin_1 = c1_y < 0.18 or c1_y > 0.82
+            in_margin_2 = c2_y < 0.18 or c2_y > 0.82
+            if not (in_margin_1 and in_margin_2):
+                margin_branding_only = False
+                break
+
+        repetitive_grid = len(boxes) >= 6  # 3+ duplicated pairs suggests repetitive layout/watermarks
+
+        if margin_branding_only or repetitive_grid:
+            reason = (
+                "header/footer margin placement (consistent with repeated branding/logos)"
+                if margin_branding_only
+                else "repetitive multi-instance layout pattern"
+            )
+            detail = (
+                f"Page {page_idx}: detected {len(boxes) // 2} duplicated region pair(s) "
+                f"(max cluster={best_cluster_size} matches, patch NCC={best_corr:.2f}), "
+                f"but {reason} prevents determining whether this is unauthorized cloning or legitimate repetition."
+            )
+            return "inconclusive", 0.22, 0.40, boxes, detail
+
         raw_score = (
-            0.45
-            + min(0.25, (best_cluster_size - MIN_CLUSTER_MATCHES) * 0.015)
-            + min(0.15, (best_corr - MIN_PATCH_CORR) * 0.8)
+            0.42
+            + min(0.22, (best_cluster_size - MIN_CLUSTER_MATCHES) * 0.015)
+            + min(0.14, (best_corr - MIN_PATCH_CORR) * 0.8)
         )
-        score = float(np.clip(raw_score, 0.40, 0.85))
-        confidence = float(np.clip(0.55 + (best_corr - MIN_PATCH_CORR) * 1.5, 0.55, 0.88))
+        score = float(np.clip(raw_score, 0.40, 0.80))
+        confidence = float(np.clip(0.50 + (best_corr - MIN_PATCH_CORR) * 1.2, 0.50, 0.72))
         detail = (
-            f"Page {page_idx}: found {len(boxes) // 2} duplicated region pair(s) "
+            f"Page {page_idx}: found {len(boxes) // 2} duplicated region pair(s) in document body "
             f"(max cluster={best_cluster_size} matches, patch NCC={best_corr:.2f}). "
-            "Note: repeated logos or identical boilerplate text can also exhibit high similarity."
+            "Note: pixel duplication alone cannot distinguish unauthorized cloning from legitimate repeated stamps or logos without a reference template."
         )
         return "suspicious", score, confidence, boxes, detail
 
@@ -334,10 +365,10 @@ class CopyMoveDetector:
 
         if "suspicious" in statuses:
             final_status = "suspicious"
-        elif "passed" in statuses:
-            final_status = "passed"
         elif "inconclusive" in statuses:
             final_status = "inconclusive"
+        elif "passed" in statuses:
+            final_status = "passed"
         else:
             final_status = "error"
 
