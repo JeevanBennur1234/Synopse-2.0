@@ -1,0 +1,1782 @@
+{
+  "filename": "04_bank.pdf",
+  "label": "clean",
+  "sha256": "50a1d0796ef2a9eece4d4b45b98238f08bfedb44ba1d18c59c80d6502a0b8844",
+  "seconds": 3.608,
+  "result": {
+    "job_id": "a1e22d6260d2490eaad4972740f0f3a3",
+    "status": "completed",
+    "review_required": false,
+    "insufficient_core_evidence": false,
+    "check_status_counts": {
+      "passed": 7,
+      "suspicious": 0,
+      "inconclusive": 6,
+      "not_applicable": 5,
+      "error": 0
+    },
+    "risk_score": 1.5,
+    "risk_level": "low",
+    "coverage": 1.0,
+    "findings": [
+      {
+        "name": "ela",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "ELA is not applicable to '.pdf' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "copy_move",
+        "score": 0.05,
+        "confidence": 0.7,
+        "status": "passed",
+        "evidence": "Page 0: no RANSAC-consistent non-tabular copy-move region clusters detected across 2505 keypoints. Page 1: no RANSAC-consistent non-tabular copy-move region clusters detected across 2504 keypoints.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "noise_inconsistency",
+        "score": 0.0,
+        "confidence": 0.65,
+        "status": "passed",
+        "evidence": "Page 0: background noise is consistent across 800 blocks (median sigma=0.00, p95=0.00; text edges excluded). Page 1: background noise is consistent across 800 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "image_metadata",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "Image metadata detector is not applicable to PDF sources; PDF metadata is handled by file_forensics to avoid duplicate scoring.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "typography",
+        "score": 0.04,
+        "confidence": 0.65,
+        "status": "passed",
+        "evidence": "Page 0: line-level typography, baseline, colour, and local backgrounds appear consistent. Page 1: line-level typography, baseline, colour, and local backgrounds appear consistent.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "pdf_metadata_integrity",
+        "score": 0.0,
+        "confidence": 0.85,
+        "status": "passed",
+        "evidence": "PDF metadata is consistent. Producer: 'MuPDF 1.28.6', CreationDate: N/A. No timestamp inversions detected.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "pdf_structural_integrity",
+        "score": 0.0,
+        "confidence": 0.85,
+        "status": "passed",
+        "evidence": "PDF structure is well-formed with single standard revision (1 %%EOF), valid startxref pointer, and no suspicious executable stream actions.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "gstin_validation",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "No GSTIN field detected in extracted document data.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "invoice_arithmetic_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Subtotal or grand total is missing (subtotal=missing, total=missing); cannot verify invoice arithmetic.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "invoice_line_items_arithmetic",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "No labelled line-item table was found.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "cgst_sgst_symmetry",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "gst_jurisdiction_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "tax_rate_arithmetic",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "No tax breakdown or rate is printed.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "calendar_date_validity",
+        "score": 0.0,
+        "confidence": 0.9,
+        "status": "passed",
+        "evidence": "Validated 12 calendar date(s); all conform to valid calendar days and leap year rules.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 90,
+            "y": 282,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 90,
+            "y": 340,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 90,
+            "y": 398,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 90,
+            "y": 456,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 90,
+            "y": 514,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 90,
+            "y": 572,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 282,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 340,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 398,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 456,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 514,
+            "w": 100,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 90,
+            "y": 572,
+            "w": 100,
+            "h": 27
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "date_chronology",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "ifsc_validation",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "No IFSC code candidates extracted from document.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "bank_statement_balance_consistency",
+        "score": 0.0,
+        "confidence": 0.9,
+        "status": "passed",
+        "evidence": "Validated 12 bank transaction(s); running balances and net debits/credits are strictly consistent with reported balances.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 1020,
+            "y": 282,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 1020,
+            "y": 340,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 1020,
+            "y": 398,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 1020,
+            "y": 456,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 0,
+            "x": 1020,
+            "y": 514,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 1020,
+            "y": 282,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 1020,
+            "y": 340,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 1020,
+            "y": 398,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 1020,
+            "y": 456,
+            "w": 89,
+            "h": 27
+          },
+          {
+            "page": 1,
+            "x": 1020,
+            "y": 514,
+            "w": 89,
+            "h": 27
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "qr_code_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      }
+    ],
+    "pages": [
+      {
+        "page": 0,
+        "width": 1240,
+        "height": 1580,
+        "text": "MOSS CREDIT UNION / SYNTHETIC BANK STATEMENT 1/2\nOpening Balance: 36,400.00\nDate\nDescription\nDebit\nCredit\nBalance\n01/10/2025\nClearing 89675\n433.00\n0.00\n35,967.00\n02/10/2025\nClearing 23217\n0.00\n1,330.00\n37,297.00\n03/10/2025\nClearing 62569\n607.00\n0.00\n36,690.00\n04/10/2025\nClearing 36717\n0.00\n1,568.00\n38,258.00\n05/10/2025\nClearing 87026\n1,093.00\n0.00\n37,165.00\n06/10/2025\nClearing 46386\n0.00\n976.00\n38,141.00\nClosing Balance: 38,141.00\n",
+        "words": [
+          {
+            "text": "MOSS",
+            "page": 0,
+            "x": 88,
+            "y": 88,
+            "w": 65,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "CREDIT",
+            "page": 0,
+            "x": 159,
+            "y": 88,
+            "w": 82,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "UNION",
+            "page": 0,
+            "x": 247,
+            "y": 88,
+            "w": 71,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "/",
+            "page": 0,
+            "x": 324,
+            "y": 88,
+            "w": 6,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "SYNTHETIC",
+            "page": 0,
+            "x": 336,
+            "y": 88,
+            "w": 125,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "BANK",
+            "page": 0,
+            "x": 467,
+            "y": 88,
+            "w": 60,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "STATEMENT",
+            "page": 0,
+            "x": 533,
+            "y": 88,
+            "w": 133,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "1/2",
+            "page": 0,
+            "x": 672,
+            "y": 88,
+            "w": 31,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Opening",
+            "page": 0,
+            "x": 88,
+            "y": 136,
+            "w": 83,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance:",
+            "page": 0,
+            "x": 177,
+            "y": 136,
+            "w": 86,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "36,400.00",
+            "page": 0,
+            "x": 269,
+            "y": 136,
+            "w": 98,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Date",
+            "page": 0,
+            "x": 90,
+            "y": 220,
+            "w": 46,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Description",
+            "page": 0,
+            "x": 296,
+            "y": 220,
+            "w": 110,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Debit",
+            "page": 0,
+            "x": 680,
+            "y": 220,
+            "w": 51,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Credit",
+            "page": 0,
+            "x": 844,
+            "y": 220,
+            "w": 59,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance",
+            "page": 0,
+            "x": 1020,
+            "y": 220,
+            "w": 79,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "01/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 282,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 282,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "89675",
+            "page": 0,
+            "x": 376,
+            "y": 282,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "433.00",
+            "page": 0,
+            "x": 680,
+            "y": 282,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 844,
+            "y": 282,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "35,967.00",
+            "page": 0,
+            "x": 1020,
+            "y": 282,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "02/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 340,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 340,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "23217",
+            "page": 0,
+            "x": 376,
+            "y": 340,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 680,
+            "y": 340,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "1,330.00",
+            "page": 0,
+            "x": 844,
+            "y": 340,
+            "w": 78,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "37,297.00",
+            "page": 0,
+            "x": 1020,
+            "y": 340,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "03/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 398,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 398,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "62569",
+            "page": 0,
+            "x": 376,
+            "y": 398,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "607.00",
+            "page": 0,
+            "x": 680,
+            "y": 398,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 844,
+            "y": 398,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "36,690.00",
+            "page": 0,
+            "x": 1020,
+            "y": 398,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "04/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 456,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 456,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "36717",
+            "page": 0,
+            "x": 376,
+            "y": 456,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 680,
+            "y": 456,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "1,568.00",
+            "page": 0,
+            "x": 844,
+            "y": 456,
+            "w": 78,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,258.00",
+            "page": 0,
+            "x": 1020,
+            "y": 456,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "05/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 514,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 514,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "87026",
+            "page": 0,
+            "x": 376,
+            "y": 514,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "1,093.00",
+            "page": 0,
+            "x": 680,
+            "y": 514,
+            "w": 78,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 844,
+            "y": 514,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "37,165.00",
+            "page": 0,
+            "x": 1020,
+            "y": 514,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "06/10/2025",
+            "page": 0,
+            "x": 90,
+            "y": 572,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 0,
+            "x": 296,
+            "y": 572,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "46386",
+            "page": 0,
+            "x": 376,
+            "y": 572,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 0,
+            "x": 680,
+            "y": 572,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "976.00",
+            "page": 0,
+            "x": 844,
+            "y": 572,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,141.00",
+            "page": 0,
+            "x": 1020,
+            "y": 572,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Closing",
+            "page": 0,
+            "x": 90,
+            "y": 756,
+            "w": 73,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance:",
+            "page": 0,
+            "x": 169,
+            "y": 756,
+            "w": 86,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "38,141.00",
+            "page": 0,
+            "x": 261,
+            "y": 756,
+            "w": 98,
+            "h": 30,
+            "confidence": null
+          }
+        ],
+        "method": "native_pdf",
+        "preview_url": "/result/a1e22d6260d2490eaad4972740f0f3a3/pages/0"
+      },
+      {
+        "page": 1,
+        "width": 1240,
+        "height": 1580,
+        "text": "MOSS CREDIT UNION / SYNTHETIC BANK STATEMENT 2/2\nOpening Balance: 38,141.00\nDate\nDescription\nDebit\nCredit\nBalance\n07/10/2025\nClearing 77984\n731.00\n0.00\n37,410.00\n08/10/2025\nClearing 13509\n0.00\n1,359.00\n38,769.00\n09/10/2025\nClearing 17303\n605.00\n0.00\n38,164.00\n10/10/2025\nClearing 85485\n0.00\n763.00\n38,927.00\n11/10/2025\nClearing 93121\n591.00\n0.00\n38,336.00\n12/10/2025\nClearing 91524\n0.00\n1,011.00\n39,347.00\nClosing Balance: 39,347.00\n",
+        "words": [
+          {
+            "text": "MOSS",
+            "page": 1,
+            "x": 88,
+            "y": 88,
+            "w": 65,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "CREDIT",
+            "page": 1,
+            "x": 159,
+            "y": 88,
+            "w": 82,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "UNION",
+            "page": 1,
+            "x": 247,
+            "y": 88,
+            "w": 71,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "/",
+            "page": 1,
+            "x": 324,
+            "y": 88,
+            "w": 6,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "SYNTHETIC",
+            "page": 1,
+            "x": 336,
+            "y": 88,
+            "w": 125,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "BANK",
+            "page": 1,
+            "x": 467,
+            "y": 88,
+            "w": 60,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "STATEMENT",
+            "page": 1,
+            "x": 533,
+            "y": 88,
+            "w": 133,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "2/2",
+            "page": 1,
+            "x": 672,
+            "y": 88,
+            "w": 31,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Opening",
+            "page": 1,
+            "x": 88,
+            "y": 136,
+            "w": 83,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance:",
+            "page": 1,
+            "x": 177,
+            "y": 136,
+            "w": 86,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "38,141.00",
+            "page": 1,
+            "x": 269,
+            "y": 136,
+            "w": 98,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Date",
+            "page": 1,
+            "x": 90,
+            "y": 220,
+            "w": 46,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Description",
+            "page": 1,
+            "x": 296,
+            "y": 220,
+            "w": 110,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Debit",
+            "page": 1,
+            "x": 680,
+            "y": 220,
+            "w": 51,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Credit",
+            "page": 1,
+            "x": 844,
+            "y": 220,
+            "w": 59,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance",
+            "page": 1,
+            "x": 1020,
+            "y": 220,
+            "w": 79,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "07/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 282,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 282,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "77984",
+            "page": 1,
+            "x": 376,
+            "y": 282,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "731.00",
+            "page": 1,
+            "x": 680,
+            "y": 282,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 844,
+            "y": 282,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "37,410.00",
+            "page": 1,
+            "x": 1020,
+            "y": 282,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "08/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 340,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 340,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "13509",
+            "page": 1,
+            "x": 376,
+            "y": 340,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 680,
+            "y": 340,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "1,359.00",
+            "page": 1,
+            "x": 844,
+            "y": 340,
+            "w": 78,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,769.00",
+            "page": 1,
+            "x": 1020,
+            "y": 340,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "09/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 398,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 398,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "17303",
+            "page": 1,
+            "x": 376,
+            "y": 398,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "605.00",
+            "page": 1,
+            "x": 680,
+            "y": 398,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 844,
+            "y": 398,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,164.00",
+            "page": 1,
+            "x": 1020,
+            "y": 398,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "10/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 456,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 456,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "85485",
+            "page": 1,
+            "x": 376,
+            "y": 456,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 680,
+            "y": 456,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "763.00",
+            "page": 1,
+            "x": 844,
+            "y": 456,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,927.00",
+            "page": 1,
+            "x": 1020,
+            "y": 456,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "11/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 514,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 514,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "93121",
+            "page": 1,
+            "x": 376,
+            "y": 514,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "591.00",
+            "page": 1,
+            "x": 680,
+            "y": 514,
+            "w": 61,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 844,
+            "y": 514,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "38,336.00",
+            "page": 1,
+            "x": 1020,
+            "y": 514,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "12/10/2025",
+            "page": 1,
+            "x": 90,
+            "y": 572,
+            "w": 100,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Clearing",
+            "page": 1,
+            "x": 296,
+            "y": 572,
+            "w": 74,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "91524",
+            "page": 1,
+            "x": 376,
+            "y": 572,
+            "w": 56,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "0.00",
+            "page": 1,
+            "x": 680,
+            "y": 572,
+            "w": 39,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "1,011.00",
+            "page": 1,
+            "x": 844,
+            "y": 572,
+            "w": 78,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "39,347.00",
+            "page": 1,
+            "x": 1020,
+            "y": 572,
+            "w": 89,
+            "h": 27,
+            "confidence": null
+          },
+          {
+            "text": "Closing",
+            "page": 1,
+            "x": 90,
+            "y": 756,
+            "w": 73,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "Balance:",
+            "page": 1,
+            "x": 169,
+            "y": 756,
+            "w": 86,
+            "h": 30,
+            "confidence": null
+          },
+          {
+            "text": "39,347.00",
+            "page": 1,
+            "x": 261,
+            "y": 756,
+            "w": 98,
+            "h": 30,
+            "confidence": null
+          }
+        ],
+        "method": "native_pdf",
+        "preview_url": "/result/a1e22d6260d2490eaad4972740f0f3a3/pages/1"
+      }
+    ],
+    "fields": {
+      "gstin": [],
+      "dates": [
+        "01/10/2025",
+        "02/10/2025",
+        "03/10/2025",
+        "04/10/2025",
+        "05/10/2025",
+        "06/10/2025",
+        "07/10/2025",
+        "08/10/2025",
+        "09/10/2025",
+        "10/10/2025",
+        "11/10/2025",
+        "12/10/2025"
+      ],
+      "ifsc": [],
+      "invoice_number": [],
+      "total": [],
+      "subtotal": [],
+      "cgst": [],
+      "sgst": [],
+      "igst": [],
+      "utgst": [],
+      "cess": [],
+      "discount": [],
+      "opening_balance": [
+        "36,400.00",
+        "38,141.00"
+      ],
+      "closing_balance": [
+        "38,141.00",
+        "39,347.00"
+      ],
+      "invoice_date": [],
+      "due_date": [],
+      "tax_rate": [],
+      "supplier_state": [],
+      "place_of_supply": []
+    },
+    "warnings": [],
+    "engine_runs": [
+      {
+        "engine": "visual",
+        "status": "completed",
+        "finding_count": 5
+      },
+      {
+        "engine": "file_forensics",
+        "status": "completed",
+        "finding_count": 2
+      },
+      {
+        "engine": "consistency",
+        "status": "completed",
+        "finding_count": 11
+      }
+    ],
+    "field_locations": {
+      "gstin": [],
+      "dates": [
+        {
+          "value": "01/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 282,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            282,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "02/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 340,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            340,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "03/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 398,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            398,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "04/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 456,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            456,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "05/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 514,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            514,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "06/10/2025",
+          "page": 0,
+          "x": 90,
+          "y": 572,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            572,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "07/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 282,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            282,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "08/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 340,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            340,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "09/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 398,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            398,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "10/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 456,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            456,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "11/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 514,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            514,
+            100,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "12/10/2025",
+          "page": 1,
+          "x": 90,
+          "y": 572,
+          "w": 100,
+          "h": 27,
+          "bbox": [
+            90,
+            572,
+            100,
+            27
+          ],
+          "confidence": null
+        }
+      ],
+      "ifsc": [],
+      "invoice_number": [],
+      "total": [],
+      "subtotal": [],
+      "cgst": [],
+      "sgst": [],
+      "igst": [],
+      "utgst": [],
+      "cess": [],
+      "discount": [],
+      "opening_balance": [
+        {
+          "value": "36,400.00",
+          "page": 0,
+          "x": 269,
+          "y": 136,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            269,
+            136,
+            98,
+            30
+          ],
+          "confidence": null
+        },
+        {
+          "value": "38,141.00",
+          "page": 0,
+          "x": 1020,
+          "y": 572,
+          "w": 89,
+          "h": 27,
+          "bbox": [
+            1020,
+            572,
+            89,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "38,141.00",
+          "page": 0,
+          "x": 261,
+          "y": 756,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            261,
+            756,
+            98,
+            30
+          ],
+          "confidence": null
+        },
+        {
+          "value": "38,141.00",
+          "page": 1,
+          "x": 269,
+          "y": 136,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            269,
+            136,
+            98,
+            30
+          ],
+          "confidence": null
+        }
+      ],
+      "closing_balance": [
+        {
+          "value": "38,141.00",
+          "page": 0,
+          "x": 1020,
+          "y": 572,
+          "w": 89,
+          "h": 27,
+          "bbox": [
+            1020,
+            572,
+            89,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "38,141.00",
+          "page": 0,
+          "x": 261,
+          "y": 756,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            261,
+            756,
+            98,
+            30
+          ],
+          "confidence": null
+        },
+        {
+          "value": "38,141.00",
+          "page": 1,
+          "x": 269,
+          "y": 136,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            269,
+            136,
+            98,
+            30
+          ],
+          "confidence": null
+        },
+        {
+          "value": "39,347.00",
+          "page": 1,
+          "x": 1020,
+          "y": 572,
+          "w": 89,
+          "h": 27,
+          "bbox": [
+            1020,
+            572,
+            89,
+            27
+          ],
+          "confidence": null
+        },
+        {
+          "value": "39,347.00",
+          "page": 1,
+          "x": 261,
+          "y": 756,
+          "w": 98,
+          "h": 30,
+          "bbox": [
+            261,
+            756,
+            98,
+            30
+          ],
+          "confidence": null
+        }
+      ],
+      "invoice_date": [],
+      "due_date": [],
+      "tax_rate": [],
+      "supplier_state": [],
+      "place_of_supply": []
+    },
+    "registry_checks": [],
+    "explanation": {
+      "summary": "Overall heuristic risk is low (1.5/100, heuristic screening score, not probability of forgery). 0 suspicious finding(s); engine evidence coverage 100%.",
+      "reasons": [],
+      "limitations": [
+        "Risk is a heuristic, not a probability of fraud or proof of authenticity.",
+        "GST registry lookup is a synthetic demonstration, not government verification.",
+        "Not checked (inconclusive): cgst_sgst_symmetry, date_chronology, gst_jurisdiction_consistency, gstin_validation, ifsc_validation, invoice_arithmetic_consistency",
+        "Not checked (not_applicable): ela, image_metadata, invoice_line_items_arithmetic, qr_code_consistency, tax_rate_arithmetic"
+      ],
+      "recommendation": "Verify against original records before relying on the document; absence of flags is not proof of authenticity.",
+      "method": "deterministic"
+    }
+  }
+}

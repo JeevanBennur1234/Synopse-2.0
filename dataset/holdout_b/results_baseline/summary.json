@@ -1,0 +1,9 @@
+{
+  "count": 12,
+  "clean_low": 3,
+  "clean": 5,
+  "tampered_medium_high": 2,
+  "tampered": 7,
+  "median_seconds": 3.614,
+  "max_seconds": 5.017
+}

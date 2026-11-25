@@ -1,0 +1,964 @@
+{
+  "filename": "05_raster.png",
+  "label": "clean",
+  "sha256": "1142349c9cf0b5634534df6e71bfaad2f4feb495fbea434383cf3822b3f88b17",
+  "seconds": 4.212,
+  "result": {
+    "job_id": "1fd393bea9d64a94b9550d071552a385",
+    "status": "completed",
+    "review_required": true,
+    "insufficient_core_evidence": true,
+    "check_status_counts": {
+      "passed": 6,
+      "suspicious": 0,
+      "inconclusive": 8,
+      "not_applicable": 3,
+      "error": 0
+    },
+    "risk_score": null,
+    "risk_level": "inconclusive",
+    "coverage": 0.0,
+    "findings": [
+      {
+        "name": "ela",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "ELA is not applicable to '.png' files. Lossless formats (e.g., PNG) and PDF-rendered pages do not preserve original JPEG quantization history.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "copy_move",
+        "score": 0.05,
+        "confidence": 0.7,
+        "status": "passed",
+        "evidence": "Page 0: no RANSAC-consistent non-tabular copy-move region clusters detected across 2524 keypoints.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "noise_inconsistency",
+        "score": 0.0,
+        "confidence": 0.65,
+        "status": "passed",
+        "evidence": "Page 0: background noise is consistent across 798 blocks (median sigma=0.00, p95=0.00; text edges excluded).",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "image_metadata",
+        "score": 0.0,
+        "confidence": 0.2,
+        "status": "inconclusive",
+        "evidence": "No EXIF or text metadata found in image. Metadata is commonly stripped by messaging apps or scanners, so missing metadata does not imply forgery.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "typography",
+        "score": 0.04,
+        "confidence": 0.65,
+        "status": "passed",
+        "evidence": "Page 0: line-level typography, baseline, colour, and local backgrounds appear consistent.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "file_forensics",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "File forensics is designed for PDF documents; '.png' container metadata is handled by image_metadata to avoid duplicate scoring.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "gstin_validation",
+        "score": 0.0,
+        "confidence": 0.9,
+        "status": "passed",
+        "evidence": "GSTIN '29AABFM3461Q1ZR' passed structure, state code (29 - Karnataka) and Luhn Mod-36 checksum validation. Note: Valid GSTIN structure does not establish actual registration or ownership.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 175,
+            "y": 242,
+            "w": 225,
+            "h": 19
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "invoice_arithmetic_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Subtotal or grand total is missing (subtotal=missing, total=missing); cannot verify invoice arithmetic.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "invoice_line_items_arithmetic",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "No reliable subtotal to compare with the line-item sum.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 971,
+            "y": 473,
+            "w": 105,
+            "h": 20
+          },
+          {
+            "page": 0,
+            "x": 971,
+            "y": 527,
+            "w": 105,
+            "h": 20
+          },
+          {
+            "page": 0,
+            "x": 972,
+            "y": 581,
+            "w": 104,
+            "h": 20
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "cgst_sgst_symmetry",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "gst_jurisdiction_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Supplier location or place of supply is not explicitly extracted; cannot determine inter-state vs intra-state jurisdiction (per rules, place of supply is not inferred from GSTIN alone).",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "tax_rate_arithmetic",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Subtotal or tax components missing; cannot verify tax rate arithmetic.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "calendar_date_validity",
+        "score": 0.0,
+        "confidence": 0.9,
+        "status": "passed",
+        "evidence": "Validated 1 calendar date(s); all conform to valid calendar days and leap year rules.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 235,
+            "y": 302,
+            "w": 119,
+            "h": 19
+          },
+          {
+            "page": 0,
+            "x": 235,
+            "y": 302,
+            "w": 119,
+            "h": 19
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "date_chronology",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "Both invoice date and due date are required for chronology check; one or both missing.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "ifsc_validation",
+        "score": 0.0,
+        "confidence": 0.9,
+        "status": "passed",
+        "evidence": "IFSC code 'HDFC0006472' conforms to the 11-character RBI standard structure.",
+        "boxes": [
+          {
+            "page": 0,
+            "x": 830,
+            "y": 302,
+            "w": 157,
+            "h": 19
+          }
+        ],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "bank_statement_balance_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "inconclusive",
+        "evidence": "No structured bank transactions (_bank_transactions) found in extracted fields.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      },
+      {
+        "name": "qr_code_consistency",
+        "score": 0.0,
+        "confidence": 0.0,
+        "status": "not_applicable",
+        "evidence": "No QR code detected or extracted from document. QR validation levels: detected=False, decoded=False, payload_checked=False, signature_verified=False.",
+        "boxes": [],
+        "severity": "info",
+        "corroborated": false
+      }
+    ],
+    "pages": [
+      {
+        "page": 0,
+        "width": 1240,
+        "height": 1580,
+        "text": "MOSS CIRCUIT LAB / SYNTHETIC TEST\nInvoice No: MC-905800\nGSTIN: 29AABFM3461Q1ZR Place of Supply: Karnataka\nInvoice Date: 07/10/2025 IFSC: HDFC0006472\nDescription Qty Rate Amount\nCalibrate oscillator 5 5,300.00 26,500.00\nInspect terminal rack 6 5,700.00 34,200.00\nDocument load curve 2 5,100.00 10,200.00\nTaxable Amount\n70,900.00\nCGST (9%)\n6,381.00\nSGST (9%)\n6,381.00\nGrand Total\n83,662.00\nSynthetic test data. No payment due.",
+        "words": [
+          {
+            "text": "MOSS",
+            "page": 0,
+            "x": 90,
+            "y": 88,
+            "w": 67,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "CIRCUIT",
+            "page": 0,
+            "x": 167,
+            "y": 88,
+            "w": 95,
+            "h": 19,
+            "confidence": 0.95
+          },
+          {
+            "text": "LAB",
+            "page": 0,
+            "x": 271,
+            "y": 88,
+            "w": 42,
+            "h": 18,
+            "confidence": 0.82
+          },
+          {
+            "text": "/",
+            "page": 0,
+            "x": 322,
+            "y": 88,
+            "w": 6,
+            "h": 18,
+            "confidence": 0.82
+          },
+          {
+            "text": "SYNTHETIC",
+            "page": 0,
+            "x": 336,
+            "y": 88,
+            "w": 134,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "TEST",
+            "page": 0,
+            "x": 478,
+            "y": 88,
+            "w": 60,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Invoice",
+            "page": 0,
+            "x": 90,
+            "y": 134,
+            "w": 73,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "No:",
+            "page": 0,
+            "x": 172,
+            "y": 134,
+            "w": 35,
+            "h": 19,
+            "confidence": 0.93
+          },
+          {
+            "text": "MC-905800",
+            "page": 0,
+            "x": 216,
+            "y": 134,
+            "w": 123,
+            "h": 19,
+            "confidence": 0.91
+          },
+          {
+            "text": "GSTIN:",
+            "page": 0,
+            "x": 89,
+            "y": 242,
+            "w": 78,
+            "h": 19,
+            "confidence": 0.9
+          },
+          {
+            "text": "29AABFM3461Q1ZR",
+            "page": 0,
+            "x": 175,
+            "y": 242,
+            "w": 225,
+            "h": 19,
+            "confidence": 0.9
+          },
+          {
+            "text": "Invoice",
+            "page": 0,
+            "x": 90,
+            "y": 302,
+            "w": 73,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Date:",
+            "page": 0,
+            "x": 173,
+            "y": 302,
+            "w": 54,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "07/10/2025",
+            "page": 0,
+            "x": 235,
+            "y": 302,
+            "w": 119,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Description",
+            "page": 0,
+            "x": 92,
+            "y": 406,
+            "w": 116,
+            "h": 32,
+            "confidence": 0.96
+          },
+          {
+            "text": "Qty",
+            "page": 0,
+            "x": 551,
+            "y": 410,
+            "w": 36,
+            "h": 23,
+            "confidence": 0.96
+          },
+          {
+            "text": "Calibrate",
+            "page": 0,
+            "x": 91,
+            "y": 472,
+            "w": 94,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "oscillator",
+            "page": 0,
+            "x": 193,
+            "y": 472,
+            "w": 94,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "5",
+            "page": 0,
+            "x": 551,
+            "y": 473,
+            "w": 11,
+            "h": 18,
+            "confidence": 0.95
+          },
+          {
+            "text": "Inspect",
+            "page": 0,
+            "x": 92,
+            "y": 526,
+            "w": 75,
+            "h": 23,
+            "confidence": 0.95
+          },
+          {
+            "text": "terminal",
+            "page": 0,
+            "x": 174,
+            "y": 526,
+            "w": 84,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "rack",
+            "page": 0,
+            "x": 268,
+            "y": 526,
+            "w": 43,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "6",
+            "page": 0,
+            "x": 551,
+            "y": 527,
+            "w": 11,
+            "h": 18,
+            "confidence": 0.96
+          },
+          {
+            "text": "Document",
+            "page": 0,
+            "x": 92,
+            "y": 580,
+            "w": 107,
+            "h": 19,
+            "confidence": 0.92
+          },
+          {
+            "text": "load",
+            "page": 0,
+            "x": 208,
+            "y": 580,
+            "w": 42,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "curve",
+            "page": 0,
+            "x": 259,
+            "y": 585,
+            "w": 57,
+            "h": 14,
+            "confidence": 0.96
+          },
+          {
+            "text": "2",
+            "page": 0,
+            "x": 551,
+            "y": 581,
+            "w": 11,
+            "h": 17,
+            "confidence": 0.96
+          },
+          {
+            "text": "Synthetic",
+            "page": 0,
+            "x": 91,
+            "y": 1426,
+            "w": 97,
+            "h": 23,
+            "confidence": 0.96
+          },
+          {
+            "text": "test",
+            "page": 0,
+            "x": 196,
+            "y": 1428,
+            "w": 38,
+            "h": 17,
+            "confidence": 0.96
+          },
+          {
+            "text": "data.",
+            "page": 0,
+            "x": 241,
+            "y": 1426,
+            "w": 51,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "No",
+            "page": 0,
+            "x": 303,
+            "y": 1426,
+            "w": 27,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "payment",
+            "page": 0,
+            "x": 339,
+            "y": 1428,
+            "w": 91,
+            "h": 21,
+            "confidence": 0.96
+          },
+          {
+            "text": "due.",
+            "page": 0,
+            "x": 438,
+            "y": 1426,
+            "w": 44,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Place",
+            "page": 0,
+            "x": 762,
+            "y": 242,
+            "w": 57,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "of",
+            "page": 0,
+            "x": 827,
+            "y": 242,
+            "w": 19,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Supply:",
+            "page": 0,
+            "x": 855,
+            "y": 242,
+            "w": 77,
+            "h": 23,
+            "confidence": 0.96
+          },
+          {
+            "text": "Karnataka",
+            "page": 0,
+            "x": 942,
+            "y": 242,
+            "w": 107,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "IFSC:",
+            "page": 0,
+            "x": 762,
+            "y": 302,
+            "w": 58,
+            "h": 19,
+            "confidence": 0.93
+          },
+          {
+            "text": "HDFC0006472",
+            "page": 0,
+            "x": 830,
+            "y": 302,
+            "w": 157,
+            "h": 19,
+            "confidence": 0.9
+          },
+          {
+            "text": "Rate",
+            "page": 0,
+            "x": 732,
+            "y": 410,
+            "w": 48,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Amount",
+            "page": 0,
+            "x": 971,
+            "y": 410,
+            "w": 81,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "5,300.00",
+            "page": 0,
+            "x": 731,
+            "y": 473,
+            "w": 91,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "26,500.00",
+            "page": 0,
+            "x": 971,
+            "y": 473,
+            "w": 105,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "5,700.00",
+            "page": 0,
+            "x": 731,
+            "y": 527,
+            "w": 91,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "34,200.00",
+            "page": 0,
+            "x": 971,
+            "y": 527,
+            "w": 105,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "5,100.00",
+            "page": 0,
+            "x": 731,
+            "y": 581,
+            "w": 91,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "10,200.00",
+            "page": 0,
+            "x": 972,
+            "y": 581,
+            "w": 104,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "Taxable",
+            "page": 0,
+            "x": 850,
+            "y": 762,
+            "w": 84,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Amount",
+            "page": 0,
+            "x": 943,
+            "y": 762,
+            "w": 81,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "70,900.00",
+            "page": 0,
+            "x": 851,
+            "y": 803,
+            "w": 105,
+            "h": 20,
+            "confidence": 0.96
+          },
+          {
+            "text": "CGST",
+            "page": 0,
+            "x": 851,
+            "y": 870,
+            "w": 65,
+            "h": 19,
+            "confidence": 0.91
+          },
+          {
+            "text": "(9%)",
+            "page": 0,
+            "x": 925,
+            "y": 870,
+            "w": 47,
+            "h": 23,
+            "confidence": 0.96
+          },
+          {
+            "text": "6,381.00",
+            "page": 0,
+            "x": 851,
+            "y": 911,
+            "w": 91,
+            "h": 20,
+            "confidence": 0.94
+          },
+          {
+            "text": "SGST",
+            "page": 0,
+            "x": 851,
+            "y": 978,
+            "w": 64,
+            "h": 19,
+            "confidence": 0.92
+          },
+          {
+            "text": "(9%)",
+            "page": 0,
+            "x": 924,
+            "y": 978,
+            "w": 47,
+            "h": 23,
+            "confidence": 0.96
+          },
+          {
+            "text": "6,381.00",
+            "page": 0,
+            "x": 851,
+            "y": 1019,
+            "w": 91,
+            "h": 20,
+            "confidence": 0.94
+          },
+          {
+            "text": "Grand",
+            "page": 0,
+            "x": 851,
+            "y": 1086,
+            "w": 64,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "Total",
+            "page": 0,
+            "x": 924,
+            "y": 1086,
+            "w": 51,
+            "h": 19,
+            "confidence": 0.96
+          },
+          {
+            "text": "83,662.00",
+            "page": 0,
+            "x": 851,
+            "y": 1127,
+            "w": 105,
+            "h": 20,
+            "confidence": 0.96
+          }
+        ],
+        "method": "ocr",
+        "preview_url": "/result/1fd393bea9d64a94b9550d071552a385/pages/0"
+      }
+    ],
+    "fields": {
+      "gstin": [
+        "29AABFM3461Q1ZR"
+      ],
+      "dates": [
+        "07/10/2025"
+      ],
+      "ifsc": [
+        "HDFC0006472"
+      ],
+      "invoice_number": [
+        "MC-905800"
+      ],
+      "total": [],
+      "subtotal": [],
+      "cgst": [],
+      "sgst": [],
+      "igst": [],
+      "utgst": [],
+      "cess": [],
+      "discount": [],
+      "opening_balance": [],
+      "closing_balance": [],
+      "invoice_date": [
+        "07/10/2025"
+      ],
+      "due_date": [],
+      "tax_rate": [],
+      "supplier_state": [],
+      "place_of_supply": []
+    },
+    "warnings": [
+      "Insufficient conclusive evidence for overall risk."
+    ],
+    "engine_runs": [
+      {
+        "engine": "visual",
+        "status": "completed",
+        "finding_count": 5
+      },
+      {
+        "engine": "file_forensics",
+        "status": "not_applicable",
+        "finding_count": 1
+      },
+      {
+        "engine": "consistency",
+        "status": "completed",
+        "finding_count": 11
+      }
+    ],
+    "field_locations": {
+      "gstin": [
+        {
+          "value": "29AABFM3461Q1ZR",
+          "page": 0,
+          "x": 175,
+          "y": 242,
+          "w": 225,
+          "h": 19,
+          "bbox": [
+            175,
+            242,
+            225,
+            19
+          ],
+          "confidence": 0.9
+        }
+      ],
+      "dates": [
+        {
+          "value": "07/10/2025",
+          "page": 0,
+          "x": 235,
+          "y": 302,
+          "w": 119,
+          "h": 19,
+          "bbox": [
+            235,
+            302,
+            119,
+            19
+          ],
+          "confidence": 0.96
+        }
+      ],
+      "ifsc": [
+        {
+          "value": "HDFC0006472",
+          "page": 0,
+          "x": 830,
+          "y": 302,
+          "w": 157,
+          "h": 19,
+          "bbox": [
+            830,
+            302,
+            157,
+            19
+          ],
+          "confidence": 0.9
+        }
+      ],
+      "invoice_number": [
+        {
+          "value": "MC-905800",
+          "page": 0,
+          "x": 216,
+          "y": 134,
+          "w": 123,
+          "h": 19,
+          "bbox": [
+            216,
+            134,
+            123,
+            19
+          ],
+          "confidence": 0.91
+        }
+      ],
+      "total": [],
+      "subtotal": [],
+      "cgst": [],
+      "sgst": [],
+      "igst": [],
+      "utgst": [],
+      "cess": [],
+      "discount": [],
+      "opening_balance": [],
+      "closing_balance": [],
+      "invoice_date": [
+        {
+          "value": "07/10/2025",
+          "page": 0,
+          "x": 235,
+          "y": 302,
+          "w": 119,
+          "h": 19,
+          "bbox": [
+            235,
+            302,
+            119,
+            19
+          ],
+          "confidence": 0.96
+        }
+      ],
+      "due_date": [],
+      "tax_rate": [],
+      "supplier_state": [],
+      "place_of_supply": []
+    },
+    "registry_checks": [
+      {
+        "gstin": "29AABFM3461Q1ZR",
+        "status": "not_in_fixture",
+        "message": "Not in the synthetic fixture; real registration status is unknown.",
+        "mode": "mock",
+        "authoritative": false
+      }
+    ],
+    "explanation": {
+      "summary": "Available evidence is insufficient for an overall risk rating; needs review. 0 suspicious finding(s); engine evidence coverage 0%.",
+      "reasons": [],
+      "limitations": [
+        "Risk is a heuristic, not a probability of fraud or proof of authenticity.",
+        "GST registry lookup is a synthetic demonstration, not government verification.",
+        "Not checked (inconclusive): bank_statement_balance_consistency, cgst_sgst_symmetry, date_chronology, gst_jurisdiction_consistency, image_metadata, invoice_arithmetic_consistency, invoice_line_items_arithmetic, tax_rate_arithmetic",
+        "Not checked (not_applicable): ela, file_forensics, qr_code_consistency",
+        "Insufficient conclusive evidence for overall risk."
+      ],
+      "recommendation": "Needs review: verify against original records because inconclusive checks do not establish authenticity.",
+      "method": "deterministic"
+    }
+  }
+}
