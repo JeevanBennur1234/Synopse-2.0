@@ -108,3 +108,102 @@ def test_copy_move_blank_and_invalid(tmp_path: Path) -> None:
 
     res_missing = CopyMoveDetector().analyze(tmp_path / "missing.png", [], {})[0]
     assert res_missing.status == "error"
+
+
+def test_copy_move_ignores_periodic_table_rows(tmp_path: Path) -> None:
+    """Identical repeating table rows spaced at the detected row pitch must not be flagged."""
+    doc_path = tmp_path / "repeated_rows.png"
+    img = Image.new("RGB", (900, 1100), color=(248, 248, 248))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([40, 40, 860, 120], outline=(30, 30, 30), width=2)
+    draw.text((60, 70), "TAX INVOICE - SERVICE SCHEDULE", fill=(20, 20, 20))
+
+    row_patch = Image.new("RGB", (520, 34), color=(248, 248, 248))
+    rdraw = ImageDraw.Draw(row_patch)
+    rdraw.rectangle([2, 2, 518, 32], outline=(40, 40, 40), width=1)
+    rdraw.text((10, 10), "Consulting & Compliance Audit Service Tier A   10.00   900.00", fill=(20, 20, 20))
+
+    words = []
+    for i in range(6):
+        y = 200 + i * 56
+        img.paste(row_patch, (80, y))
+        words.append({"text": "900.00", "x": 520, "y": y + 8, "w": 60, "h": 18})
+
+    img.save(doc_path, format="PNG")
+    context = {"_pages": [{"page": 0, "words": words}]}
+    res = CopyMoveDetector().analyze(doc_path, [doc_path], context)[0]
+    assert res.status != "suspicious"
+
+
+def test_copy_move_ignores_same_column_numeric_cells(tmp_path: Path) -> None:
+    """Stacked identical numeric cell crops in the same column must be ignored."""
+    doc_path = tmp_path / "stacked_numbers.png"
+    img = Image.new("RGB", (900, 1100), color=(248, 248, 248))
+    draw = ImageDraw.Draw(img)
+    draw.text((60, 60), "TAX INVOICE #ERP-104", fill=(20, 20, 20))
+
+    cell = Image.new("RGB", (140, 40), color=(248, 248, 248))
+    cdraw = ImageDraw.Draw(cell)
+    cdraw.rectangle([1, 1, 138, 38], outline=(30, 30, 30), width=1)
+    cdraw.text((22, 12), "1,250.00", fill=(15, 15, 15))
+
+    img.paste(cell, (620, 300))
+    img.paste(cell, (620, 485))  # irregular spacing, same column, numeric word
+    img.save(doc_path, format="PNG")
+
+    context = {
+        "_pages": [
+            {
+                "page": 0,
+                "words": [
+                    {"text": "1,250.00", "x": 635, "y": 308, "w": 95, "h": 24},
+                    {"text": "1,250.00", "x": 635, "y": 493, "w": 95, "h": 24},
+                ],
+            }
+        ]
+    }
+    res = CopyMoveDetector().analyze(doc_path, [doc_path], context)[0]
+    assert res.status != "suspicious"
+
+
+def test_copy_move_ignores_low_entropy_blank_patches(tmp_path: Path) -> None:
+    """Low-contrast/low-entropy duplicated boxes must be filtered out."""
+    from app.detectors.visual.copy_move import _has_sufficient_texture
+    import numpy as np
+
+    uniform_box = np.full((80, 120), 248, dtype=np.uint8)
+    assert not _has_sufficient_texture(uniform_box)
+
+    faint_border = uniform_box.copy()
+    faint_border[0, :] = 235
+    faint_border[-1, :] = 235
+    assert not _has_sufficient_texture(faint_border)
+
+
+def test_copy_move_rejects_isolated_non_ransac_pairs() -> None:
+    """Incoherent scattered keypoint pairs must fail RANSAC geometric verification."""
+    from app.detectors.visual.copy_move import _verify_ransac_consensus
+    import numpy as np
+
+    rng = np.random.default_rng(7)
+    pairs = [
+        ((float(x), float(y)), (float(rng.integers(50, 700)), float(rng.integers(50, 900))))
+        for x, y in zip(rng.integers(50, 300, 14), rng.integers(50, 300, 14))
+    ]
+    ok, inliers = _verify_ransac_consensus(pairs)
+    assert not ok
+    assert inliers == []
+
+
+def test_copy_move_still_flags_midpage_cloned_stamp_alongside_table(tmp_path: Path) -> None:
+    """Filtering table rows must not suppress an actual mid-page cloned stamp."""
+    doc_path = tmp_path / "table_plus_cloned_stamp.png"
+    img = _make_clean_document(doc_path)
+    stamp = _draw_textured_stamp()
+    img.paste(stamp, (260, 740))
+    img.paste(stamp, (560, 740))  # horizontal mid-page clone
+    img.save(doc_path, format="PNG")
+
+    res = CopyMoveDetector().analyze(doc_path, [doc_path], {})[0]
+    assert res.status == "suspicious"
+    assert len(res.boxes) >= 2

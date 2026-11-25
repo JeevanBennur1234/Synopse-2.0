@@ -466,4 +466,95 @@ describe("Kavach Frontend End-to-End Workflows", () => {
     URL.createObjectURL = origCreateObjectURL;
     URL.revokeObjectURL = origRevokeObjectURL;
   });
+
+  it("displays risk-floor reason, heuristic label, and not-checked badges for inconclusive/N/A detectors", async () => {
+    const floorPayload = {
+      job_id: "job-floor-ui",
+      status: "completed",
+      review_required: true,
+      check_status_counts: { passed: 2, suspicious: 1, inconclusive: 1, not_applicable: 1, error: 0 },
+      risk_score: 24.38,
+      risk_level: "medium",
+      coverage: 1.0,
+      engine_runs: [
+        { engine: "visual", status: "completed", finding_count: 2 },
+        { engine: "file_forensics", status: "not_applicable", finding_count: 1 },
+        { engine: "consistency", status: "completed", finding_count: 2 },
+      ],
+      findings: [
+        {
+          name: "copy_move",
+          score: 0.65,
+          confidence: 0.75,
+          status: "suspicious",
+          severity: "strong",
+          corroborated: false,
+          evidence: "Duplicated seal region detected.",
+          boxes: [],
+        },
+        {
+          name: "ela",
+          score: 0.0,
+          confidence: 0.0,
+          status: "not_applicable",
+          severity: "info",
+          corroborated: false,
+          evidence: "ELA not applicable to PNG.",
+          boxes: [],
+        },
+        {
+          name: "qr_code_consistency",
+          score: 0.0,
+          confidence: 0.0,
+          status: "inconclusive",
+          severity: "info",
+          corroborated: false,
+          evidence: "No QR detected.",
+          boxes: [],
+        },
+      ],
+      fields: {},
+      field_locations: {},
+      warnings: [],
+      registry_checks: [],
+      explanation: {
+        summary: "Overall heuristic risk is medium (24.38/100, heuristic screening score, not probability of forgery).",
+        reasons: [
+          {
+            detector: "copy_move",
+            evidence: "Duplicated seal region detected. (one strong signal found; other checks clean).",
+            confidence: 0.75,
+            pages: [0],
+          },
+        ],
+        limitations: ["Risk is a heuristic, not a probability of fraud or proof of authenticity."],
+        recommendation: "Review highlighted evidence and verify against original records.",
+        method: "deterministic",
+      },
+      pages: [],
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url) => {
+        if (url.endsWith("/health")) return mockJsonResponse({ status: "ok" });
+        if (url.endsWith("/analyze")) return mockJsonResponse({ job_id: "job-floor-ui", status: "queued" }, 202);
+        if (url.includes("/result/job-floor-ui")) return mockJsonResponse(floorPayload);
+        return mockJsonResponse({}, 404);
+      })
+    );
+
+    render(<App />);
+    await waitFor(() => expect(screen.getByText(/Backend Connected/i)).toBeInTheDocument());
+
+    const input = document.querySelector('input[type="file"]');
+    fireEvent.change(input, { target: { files: [new File(["png"], "clone.png", { type: "image/png" })] } });
+    fireEvent.click(screen.getByRole("button", { name: /Analyze Document/i }));
+
+    await waitFor(() => expect(screen.getByText("Medium Risk")).toBeInTheDocument());
+    expect(screen.getAllByText(/one strong signal found; other checks clean/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/strong • independent/i)).toBeInTheDocument();
+    expect(screen.getByText("Not Checked (Inconclusive)")).toBeInTheDocument();
+    expect(screen.getByText("Not Checked (Not Applicable)")).toBeInTheDocument();
+  });
 });

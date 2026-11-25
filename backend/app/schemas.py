@@ -15,3 +15,5 @@ class DetectorResult(BaseModel):
     status: Literal["passed", "suspicious", "inconclusive", "not_applicable", "error"]
     evidence: str
     boxes: list[BoundingBox] = Field(default_factory=list)
+    severity: Literal["info", "suspicious", "strong"] = "info"
+    corroborated: bool = False

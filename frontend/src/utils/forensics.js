@@ -76,13 +76,13 @@ export const RISK_STYLES = {
       "Significant forensic or arithmetic inconsistencies were detected. Escalate for independent verification using original source records.",
   },
   inconclusive: {
-    label: "Inconclusive",
+    label: "Inconclusive (Needs Review)",
     badge: "bg-slate-100 text-slate-700 border-slate-300",
     bar: "bg-slate-400",
     ring: "text-slate-600",
     panel: "border-slate-200 bg-slate-50",
     summary:
-      "Insufficient conclusive evidence to compute a reliable overall risk score. Missing or unavailable checks do not imply the document is clean.",
+      "Insufficient conclusive evidence to compute a reliable overall risk score; needs review. Missing or not-checked detectors do not imply the document is clean.",
   },
 };
 
@@ -96,11 +96,11 @@ export const FINDING_STATUS_STYLES = {
     badge: "bg-red-50 text-red-700 border-red-200",
   },
   inconclusive: {
-    label: "Inconclusive",
+    label: "Not Checked (Inconclusive)",
     badge: "bg-slate-100 text-slate-700 border-slate-200",
   },
   not_applicable: {
-    label: "Not Applicable",
+    label: "Not Checked (Not Applicable)",
     badge: "bg-slate-50 text-slate-500 border-slate-200",
   },
   error: {

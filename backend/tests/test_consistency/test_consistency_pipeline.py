@@ -106,3 +106,46 @@ def test_analyze_empty_fields_returns_inconclusive_not_passed():
     for r in results:
         assert r.status == "inconclusive"
         assert r.score == 0.0
+
+
+def test_mixed_native_and_ocr_pdf_preserves_native_gstin_tampering():
+    fields = {
+        "gstin": ["99INVALID1234Z0"],
+        "_pages": [
+            {"page": 0, "method": "native_pdf", "text": "GSTIN: 99INVALID1234Z0"},
+            {"page": 1, "method": "ocr", "text": "Scanned annexure"},
+        ],
+        "_field_locations": {
+            "gstin": [
+                {
+                    "value": "99INVALID1234Z0",
+                    "page": 0,
+                    "bbox": [20, 20, 120, 18],
+                    "confidence": None,
+                }
+            ]
+        },
+    }
+    results = analyze(Path("mixed.pdf"), [], fields)
+    gst_res = next(r for r in results if r.name == "gstin_validation")
+    assert gst_res.status == "suspicious"
+
+
+def test_ocr_only_gstin_still_softened_to_inconclusive():
+    fields = {
+        "gstin": ["29AABCU96O3R1ZM"],
+        "_pages": [{"page": 0, "method": "ocr", "text": "GSTIN: 29AABCU96O3R1ZM"}],
+        "_field_locations": {
+            "gstin": [
+                {
+                    "value": "29AABCU96O3R1ZM",
+                    "page": 0,
+                    "bbox": [20, 20, 120, 18],
+                    "confidence": 0.90,
+                }
+            ]
+        },
+    }
+    results = analyze(Path("scan.png"), [], fields)
+    gst_res = next(r for r in results if r.name == "gstin_validation")
+    assert gst_res.status == "inconclusive"

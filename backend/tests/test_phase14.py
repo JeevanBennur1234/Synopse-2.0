@@ -9,6 +9,41 @@ def test_multiline_bank_layout():
     page['text']+='\n02/01/2026\nIncomplete'
     assert '_bank_transactions' not in extract_tables([page])[0]
 
+
+def test_multipage_bank_layout_carries_forward_without_page2_header():
+    from app.detectors.consistency.banking_date import validate_date_and_banking
+
+    p0 = dict(
+        page=0,
+        method='native_pdf',
+        text='Date\nNarration\nDebit (INR)\nCredit (INR)\nBalance (INR)\n01/01/2026\nDeposit\n-\n500\n1500',
+    )
+    p1_clean = dict(
+        page=1,
+        method='native_pdf',
+        text='ACCOUNT STATEMENT Page 2\n02/01/2026\nRent\n300\n-\n1200\nClosing balance: 1200',
+    )
+    tables_clean, _ = extract_tables([p0, p1_clean])
+    assert len(tables_clean['_bank_transactions']) == 2
+    assert tables_clean['_bank_transactions'][1]['page'] == 1
+    res_clean = validate_date_and_banking(
+        {'opening_balance': ['1000'], 'closing_balance': ['1200'], **tables_clean}
+    )
+    bal_clean = next(r for r in res_clean if r.name == 'bank_statement_balance_consistency')
+    assert bal_clean.status == 'passed'
+
+    p1_tampered = dict(
+        page=1,
+        method='native_pdf',
+        text='ACCOUNT STATEMENT Page 2\n02/01/2026\nRent\n300\n-\n1900\nClosing balance: 1900',
+    )
+    tables_bad, _ = extract_tables([p0, p1_tampered])
+    res_bad = validate_date_and_banking(
+        {'opening_balance': ['1000'], 'closing_balance': ['1900'], **tables_bad}
+    )
+    bal_bad = next(r for r in res_bad if r.name == 'bank_statement_balance_consistency')
+    assert bal_bad.status == 'suspicious'
+
 def test_bank_samples():
     c=TestClient(app)
     for folder,name,expected in [('clean','bank_statement_clean_01.pdf',False),('tampered','bank_statement_tampered_balance.pdf',True)]:

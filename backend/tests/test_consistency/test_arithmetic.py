@@ -163,3 +163,30 @@ def test_validate_line_items_sum_subtotal_mismatch():
     line_res = next(r for r in results if r.name == "invoice_line_items_arithmetic")
     assert line_res.status == "suspicious"
     assert "Sum of line items" in line_res.evidence
+
+
+def test_validate_invoice_arithmetic_utgst_and_cess():
+    fields = {
+        "subtotal": ["10,000.00"],
+        "discount": ["500.00"],
+        "cgst": ["900.00"],
+        "utgst": ["900.00"],
+        "cess": ["200.00"],
+        "total": ["11,500.00"],  # 10000 - 500 + 900 + 900 + 200
+    }
+    results = validate_invoice_arithmetic(fields)
+    tot_res = next(r for r in results if r.name == "invoice_arithmetic_consistency")
+    assert tot_res.status == "passed"
+    assert tot_res.score == 0.0
+
+
+def test_validate_invoice_arithmetic_unreadable_tax_inconclusive():
+    fields = {
+        "subtotal": ["10,000.00"],
+        "cgst": ["unreadable"],
+        "total": ["11,800.00"],
+    }
+    results = validate_invoice_arithmetic(fields)
+    tot_res = next(r for r in results if r.name == "invoice_arithmetic_consistency")
+    assert tot_res.status == "inconclusive"
+    assert tot_res.score == 0.0

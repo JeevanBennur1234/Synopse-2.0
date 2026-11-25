@@ -156,3 +156,35 @@ def test_tax_rate_no_explicit_rate_does_not_assume_18():
     rate_res = next(r for r in results if r.name == "tax_rate_arithmetic")
     assert rate_res.status == "passed"
     assert "standard GST slab 5.0%" in rate_res.evidence
+
+
+def test_tax_jurisdiction_state_code_normalization_and_utgst_igst_conflict():
+    # State code vs state name must match consistently
+    clean_fields = {
+        "cgst": ["900.00"],
+        "utgst": ["900.00"],
+        "supplier_state": ["04"],
+        "place_of_supply": ["Chandigarh"],
+    }
+    jur_clean = next(r for r in validate_tax_consistency(clean_fields) if r.name == "gst_jurisdiction_consistency")
+    assert jur_clean.status == "passed"
+
+    # Concurrent IGST + UTGST must be flagged
+    conflict_fields = {
+        "utgst": ["900.00"],
+        "igst": ["1800.00"],
+    }
+    jur_conflict = next(r for r in validate_tax_consistency(conflict_fields) if r.name == "gst_jurisdiction_consistency")
+    assert jur_conflict.status == "suspicious"
+
+
+def test_tax_mixed_explicit_rates_inconclusive():
+    fields = {
+        "subtotal": ["2000.00"],
+        "tax_rate": ["5%", "18%"],
+        "cgst": ["115.00"],
+        "sgst": ["115.00"],
+    }
+    rate_res = next(r for r in validate_tax_consistency(fields) if r.name == "tax_rate_arithmetic")
+    assert rate_res.status == "inconclusive"
+    assert rate_res.score == 0.0
