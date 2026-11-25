@@ -1,0 +1,20 @@
+{
+  "filename": "invoice_clean_01.jpg",
+  "relative_path": "dataset/clean/invoice_clean_01.jpg",
+  "document_type": "gst_invoice",
+  "label": "clean",
+  "format": "jpg",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [],
+  "affected_page": null,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Clean synthetic JPEG GST invoice for ELA baseline and OCR testing."
+}

@@ -1,0 +1,40 @@
+{
+  "filename": "invoice_tampered_visual_noise.png",
+  "relative_path": "dataset/tampered/invoice_tampered_visual_noise.png",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "png",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "visual",
+      "code": "noise_inconsistency",
+      "description": "Grand total region exhibits elevated sensor/grain noise (sigma=16) vs page background (sigma=4.5)."
+    },
+    {
+      "category": "consistency",
+      "code": "grand_total_mismatch",
+      "description": "Altered Grand total reads 41,800.00 instead of 11,800.00."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 680,
+      "y": 980,
+      "w": 500,
+      "h": 140,
+      "description": "High-noise spliced patch over Grand total"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Member 2 Noise Inconsistency test sample: >= 48x48 block noise outlier over Grand total."
+}

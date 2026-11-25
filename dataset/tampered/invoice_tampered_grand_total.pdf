@@ -1,0 +1,91 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 4278 >>
+stream
+0.090 0.160 0.280 rg 36.00 784.00 523.00 30.00 re f
+BT /F2 10 Tf 0.950 0.970 1.000 rg 1 0 0 1 48.00 795.00 Tm (SAMPLE / TEST ONLY ? SYNTHETIC DATA) Tj ET
+BT /F2 11 Tf 0.800 0.900 1.000 rg 1 0 0 1 438.00 794.00 Tm (TAX INVOICE) Tj ET
+BT /F2 14 Tf 0.100 0.130 0.180 rg 1 0 0 1 40.00 754.00 Tm (KAVACH TEST SUPPLIES PVT LTD) Tj ET
+BT /F1 9 Tf 0.350 0.400 0.480 rg 1 0 0 1 40.00 740.00 Tm (Plot 42, Synthetic Tech Park, Bengaluru 560001 \(Fictional Address\)) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 40.00 724.00 Tm (GSTIN: 29KAVCH1234F1Z4) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 40.00 710.00 Tm (IFSC: SYNB0001234) Tj ET
+0.970 0.980 0.990 rg 0.820 0.850 0.900 RG 0.80 w 355.00 702.00 204.00 68.00 re B
+BT /F2 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 365.00 752.00 Tm (Invoice no: INV-2026-102) Tj ET
+BT /F1 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 365.00 735.00 Tm (Date: 25/11/2026) Tj ET
+BT /F1 9 Tf 0.350 0.400 0.480 rg 1 0 0 1 365.00 719.00 Tm (Place of Supply: Karnataka \(29\)) Tj ET
+0.840 0.870 0.910 RG 0.80 w 36.00 634.00 523.00 56.00 re S
+BT /F2 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 672.00 Tm (Billed To: BHARAT DEMO LOGISTICS LLP \(SAMPLE CUSTOMER\)) Tj ET
+BT /F1 9 Tf 0.350 0.400 0.480 rg 1 0 0 1 46.00 657.00 Tm (Unit 9, Fictional Industrial Area, Pune 411001) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 643.00 Tm (Buyer GSTIN: 27SYNTH5678G1Z6) Tj ET
+0.930 0.950 0.980 rg 0.800 0.840 0.890 RG 0.80 w 36.00 594.00 523.00 24.00 re B
+BT /F2 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 602.00 Tm (Item Description) Tj ET
+BT /F2 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 285.00 602.00 Tm (HSN) Tj ET
+BT /F2 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 350.00 602.00 Tm (Qty) Tj ET
+BT /F2 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 410.00 602.00 Tm (Rate \(INR\)) Tj ET
+BT /F2 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 485.00 602.00 Tm (Amount \(INR\)) Tj ET
+BT /F1 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 577.00 Tm (Synthetic Server Rack Enclosure) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 285.00 577.00 Tm (8537) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 354.00 577.00 Tm (2) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 412.00 577.00 Tm (3,200.00) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 488.00 577.00 Tm (6,400.00) Tj ET
+0.780 0.820 0.880 RG 0.70 w 36.00 568.00 m 559.00 568.00 l S
+BT /F1 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 551.00 Tm (Demo Fiber Patch Kit \(10m\)) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 285.00 551.00 Tm (8544) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 354.00 551.00 Tm (4) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 412.00 551.00 Tm (650.00) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 488.00 551.00 Tm (2,600.00) Tj ET
+0.780 0.820 0.880 RG 0.70 w 36.00 542.00 m 559.00 542.00 l S
+BT /F1 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 46.00 525.00 Tm (Test Calibration Service \(Mock\)) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 285.00 525.00 Tm (9987) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 354.00 525.00 Tm (1) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 412.00 525.00 Tm (1,000.00) Tj ET
+BT /F3 9 Tf 0.100 0.130 0.180 rg 1 0 0 1 488.00 525.00 Tm (1,000.00) Tj ET
+0.780 0.820 0.880 RG 0.70 w 36.00 516.00 m 559.00 516.00 l S
+0.980 0.990 1.000 rg 0.820 0.850 0.900 RG 0.80 w 36.00 347.00 523.00 140.00 re B
+BT /F2 9 Tf 0.200 0.260 0.350 rg 1 0 0 1 46.00 467.00 Tm (GST Breakdown \(9% CGST + 9% SGST = 18%\)) Tj ET
+BT /F1 8 Tf 0.450 0.490 0.560 rg 1 0 0 1 46.00 448.00 Tm (Payment Terms: Synthetic Test Invoice Only ? Not for Tax Filing) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 466.00 Tm (Subtotal: INR 10,000.00) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 446.00 Tm (CGST: INR 900.00) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 428.00 Tm (SGST: INR 900.00) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 410.00 Tm (IGST: INR 0.00) Tj ET
+BT /F3 10 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 392.00 Tm (Discount: INR 0.00) Tj ET
+0.450 0.500 0.580 RG 1.00 w 335.00 383.00 m 550.00 383.00 l S
+BT /F3 11 Tf 0.100 0.130 0.180 rg 1 0 0 1 340.00 365.00 Tm (Grand total: INR 19,800.00) Tj ET
+0.780 0.820 0.880 RG 0.70 w 36.00 82.00 m 559.00 82.00 l S
+BT /F1 8 Tf 0.450 0.500 0.560 rg 1 0 0 1 36.00 62.00 Tm (SAMPLE / TEST ONLY ? SYNTHETIC DATA | Generated for Kavach Hackathon Testing) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000000266 00000 n 
+0000000334 00000 n 
+0000004664 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+4810
+%%EOF
