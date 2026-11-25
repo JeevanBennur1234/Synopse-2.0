@@ -29,7 +29,7 @@ def test_tax_symmetry_mismatch():
     assert "Asymmetric intra-state GST amounts" in sym_res.evidence
 
 
-def test_tax_symmetry_unpaired_cgst():
+def test_tax_symmetry_unpaired_cgst_inconclusive():
     fields = {
         "subtotal": ["1,000.00"],
         "cgst": ["90.00"],
@@ -37,8 +37,35 @@ def test_tax_symmetry_unpaired_cgst():
     }
     results = validate_tax_consistency(fields)
     sym_res = next(r for r in results if r.name == "cgst_sgst_symmetry")
-    assert sym_res.status == "suspicious"
-    assert "Unpaired intra-state tax component" in sym_res.evidence
+    assert sym_res.status == "inconclusive"
+    assert sym_res.score == 0.0
+    assert "Incomplete OCR field extraction" in sym_res.evidence
+
+
+def test_tax_symmetry_utgst_support():
+    fields = {
+        "subtotal": ["1,000.00"],
+        "cgst": ["90.00"],
+        "utgst": ["90.00"],
+    }
+    results = validate_tax_consistency(fields)
+    sym_res = next(r for r in results if r.name == "cgst_sgst_symmetry")
+    assert sym_res.status == "passed"
+    assert sym_res.score == 0.0
+
+
+def test_tax_mixed_rates_inconclusive():
+    # Subtotal 1000 with 112 tax (e.g. mixed 5% and 18% items)
+    fields = {
+        "subtotal": ["1,000.00"],
+        "cgst": ["56.00"],
+        "sgst": ["56.00"],
+    }
+    results = validate_tax_consistency(fields)
+    rate_res = next(r for r in results if r.name == "tax_rate_arithmetic")
+    assert rate_res.status == "inconclusive"
+    assert rate_res.score == 0.0
+    assert "Mixed-rate line items" in rate_res.evidence
 
 
 def test_tax_jurisdiction_both_igst_and_intra_state_suspicious():

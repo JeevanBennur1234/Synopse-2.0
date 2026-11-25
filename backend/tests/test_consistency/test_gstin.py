@@ -78,12 +78,23 @@ def test_validate_gstin_missing():
     assert results[0].status == "inconclusive"
 
 
-def test_validate_gstin_conflicting_candidates():
+def test_validate_gstin_multiple_legitimate_entities_passes():
+    # Supplier in Maharashtra, Buyer in Karnataka - both valid
     fields = {"gstin": ["27AAPFU0939F1ZV", "29AAAAA0000A1ZY"]}
     results = validate_gstin_candidates(fields)
     assert len(results) == 1
+    assert results[0].status == "passed"
+    assert results[0].score == 0.0
+    assert "Multiple valid GSTINs legitimately represent supplier and recipient" in results[0].evidence
+
+
+def test_validate_gstin_multiple_candidates_one_invalid():
+    # One valid, one invalid
+    fields = {"gstin": ["27AAPFU0939F1ZV", "29INVALID123"]}
+    results = validate_gstin_candidates(fields)
+    assert len(results) == 1
     assert results[0].status == "suspicious"
-    assert "Multiple conflicting GSTIN candidates" in results[0].evidence
+    assert "Invalid GSTIN candidate(s) detected" in results[0].evidence
 
 
 def test_validate_gstin_identical_candidates_deduped():

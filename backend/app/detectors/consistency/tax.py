@@ -80,17 +80,24 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
 
     cgst, cgst_cands, cgst_status = resolve_candidate_field("cgst", fields)
     sgst, sgst_cands, sgst_status = resolve_candidate_field("sgst", fields)
+    utgst, utgst_cands, utgst_status = resolve_candidate_field("utgst", fields)
     igst, igst_cands, igst_status = resolve_candidate_field("igst", fields)
+    cess, cess_cands, cess_status = resolve_candidate_field("cess", fields)
     subtotal, _, sub_status = resolve_candidate_field("subtotal", fields)
 
-    tax_boxes = _extract_boxes(["cgst", "sgst", "igst"], fields)
+    tax_boxes = _extract_boxes(["cgst", "sgst", "utgst", "igst", "cess"], fields)
 
-    # 1. CGST / SGST Symmetry Check
+    # 1. CGST / (SGST or UTGST) Symmetry Check
+    # In Union Territories without legislatures, UTGST replaces SGST.
     has_cgst = cgst_status == "resolved" and cgst is not None
     has_sgst = sgst_status == "resolved" and sgst is not None
+    has_utgst = utgst_status == "resolved" and utgst is not None
+    has_state_tax = has_sgst or has_utgst
+    state_tax_val = sgst if has_sgst else (utgst if has_utgst else None)
+    state_tax_name = "SGST" if has_sgst else ("UTGST" if has_utgst else "SGST/UTGST")
 
-    if has_cgst and has_sgst:
-        diff = abs(cgst - sgst)  # type: ignore[operator]
+    if has_cgst and has_state_tax and state_tax_val is not None:
+        diff = abs(cgst - state_tax_val)  # type: ignore[operator]
         if diff <= LINE_ITEM_TOLERANCE:
             results.append(
                 DetectorResult(
@@ -98,7 +105,10 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                     score=0.0,
                     confidence=0.90,
                     status="passed",
-                    evidence=f"CGST ({cgst}) and SGST ({sgst}) are symmetric and equal, consistent with intra-state GST rules.",
+                    evidence=(
+                        f"CGST ({cgst}) and {state_tax_name} ({state_tax_val}) are symmetric and equal, "
+                        "consistent with intra-state / union territory GST rules."
+                    ),
                     boxes=tax_boxes,
                 )
             )
@@ -110,25 +120,26 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                     confidence=0.85,
                     status="suspicious",
                     evidence=(
-                        f"Asymmetric intra-state GST amounts: CGST ({cgst}) != SGST ({sgst}) (difference: {diff}). "
-                        "Indian GST law mandates equal CGST and SGST rates and amounts for intra-state supplies."
+                        f"Asymmetric intra-state GST amounts: CGST ({cgst}) != {state_tax_name} ({state_tax_val}) (diff: {diff}). "
+                        "Equal CGST and state/UT rates and amounts are required for standard intra-state supplies."
                     ),
                     boxes=tax_boxes,
                 )
             )
-    elif has_cgst != has_sgst:
-        present_name = "CGST" if has_cgst else "SGST"
-        present_val = cgst if has_cgst else sgst
-        missing_name = "SGST" if has_cgst else "CGST"
+    elif has_cgst != has_state_tax:
+        # Unpaired tax component: treat as inconclusive when OCR extraction may be incomplete
+        present_name = "CGST" if has_cgst else state_tax_name
+        present_val = cgst if has_cgst else state_tax_val
+        missing_name = state_tax_name if has_cgst else "CGST"
         results.append(
             DetectorResult(
                 name="cgst_sgst_symmetry",
-                score=0.70,
-                confidence=0.80,
-                status="suspicious",
+                score=0.0,
+                confidence=0.0,
+                status="inconclusive",
                 evidence=(
-                    f"Unpaired intra-state tax component: {present_name} ({present_val}) is present, "
-                    f"but {missing_name} is missing. Intra-state GST requires both components."
+                    f"Unpaired tax component: {present_name} ({present_val}) detected while {missing_name} was not extracted. "
+                    "Incomplete OCR field extraction or single-ledger accounting cannot be ruled out; treated as inconclusive."
                 ),
                 boxes=tax_boxes,
             )
@@ -140,7 +151,7 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                 score=0.0,
                 confidence=0.0,
                 status="inconclusive",
-                evidence="Intra-state tax fields (CGST/SGST) are not present in extracted data.",
+                evidence="Intra-state tax fields (CGST/SGST/UTGST) are not present in extracted data.",
                 boxes=[],
             )
         )
@@ -258,9 +269,14 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
     if has_sgst:
         total_tax += sgst  # type: ignore[operator]
         tax_count += 1
+    if has_utgst:
+        total_tax += utgst  # type: ignore[operator]
+        tax_count += 1
     if has_igst:
         total_tax += igst  # type: ignore[operator]
         tax_count += 1
+    if cess_status == "resolved" and cess is not None:
+        total_tax += cess
 
     if sub_status == "resolved" and subtotal is not None and subtotal > Decimal("0.00") and tax_count > 0:
         if extracted_rate is not None:
@@ -288,16 +304,15 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                         confidence=0.85,
                         status="suspicious",
                         evidence=(
-                            f"Tax amount discrepancy: extracted tax is {total_tax}, but {extracted_rate}% "
+                            f"Tax amount discrepancy: extracted tax is {total_tax}, but explicitly declared rate {extracted_rate}% "
                             f"on subtotal {subtotal} yields expected {expected_tax} (diff: {diff}, exceeds tolerance {DEFAULT_ROUNDING_TOLERANCE})."
                         ),
                         boxes=tax_boxes,
                     )
                 )
         else:
-            # No explicit rate extracted. Do NOT assume 18%.
+            # No explicit rate extracted. Do NOT assume 18% or classify unknown rates as suspicious.
             effective_rate = (total_tax / subtotal) * Decimal("100")
-            # Check if effective rate is close to any standard slab
             closest_slab = min(STANDARD_GST_SLABS, key=lambda s: abs(s - effective_rate))
             if abs(closest_slab - effective_rate) <= Decimal("0.5"):
                 results.append(
@@ -321,8 +336,8 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                         confidence=0.0,
                         status="inconclusive",
                         evidence=(
-                            f"Effective tax rate is {effective_rate:.2f}%. No explicit tax rate extracted; "
-                            "rate cannot be verified conclusively without explicit line-item or rate context."
+                            f"Effective tax rate is {effective_rate:.2f}%. Mixed-rate line items, cess, or special tax slabs "
+                            "frequently yield non-uniform composite tax rates; treated as inconclusive."
                         ),
                         boxes=tax_boxes,
                     )

@@ -213,22 +213,15 @@ class PDFFileForensicsDetector:
                     matched_editors.append(f"{field_name}='{field_val[:60]}'")
                     break
 
-        if matched_editors:
-            meta_score += 0.45
-            meta_findings.append(
-                f"Editing software signature detected: {', '.join(matched_editors)}."
-            )
-
         # Check timestamp consistency
+        has_timestamp_inversion = False
         if creation_date and mod_date:
             if mod_date < creation_date - timedelta(minutes=2):
-                meta_score += 0.40
+                has_timestamp_inversion = True
                 meta_findings.append(
                     f"Timestamp anomaly: ModDate ({mod_date.isoformat()}) is earlier than CreationDate ({creation_date.isoformat()})."
                 )
             elif mod_date - creation_date > timedelta(days=2):
-                # Mild indicator, note benign possibility
-                meta_score += 0.20
                 meta_findings.append(
                     f"Post-creation modification gap: ModDate ({mod_date.isoformat()}) is more than 48 hours after CreationDate ({creation_date.isoformat()})."
                 )
@@ -247,34 +240,43 @@ class PDFFileForensicsDetector:
                     boxes=[],
                 )
             )
-        elif meta_findings:
-            score = min(0.85, max(0.35, meta_score))
-            confidence = 0.75 if len(meta_findings) >= 2 else 0.65
+        elif has_timestamp_inversion:
             results.append(
                 DetectorResult(
                     name="pdf_metadata_integrity",
-                    score=round(score, 4),
-                    confidence=round(confidence, 4),
+                    score=0.75,
+                    confidence=0.85,
                     status="suspicious",
                     evidence=(
                         " ".join(meta_findings)
-                        + " Note: legitimate PDF editing and incremental saves do not automatically classify as forgery."
+                        + " ModDate preceding CreationDate indicates anomalous clock skew or metadata manipulation."
                     ),
                     boxes=[],
                 )
             )
         else:
+            # Editing software or benign modification gap
+            notes = []
+            if matched_editors:
+                notes.append(f"Editing software signature detected: {', '.join(matched_editors)}")
+            if meta_findings:
+                notes.extend(meta_findings)
+            evidence_str = (
+                ("; ".join(notes) + ". Note: legitimate editing software metadata and incremental revisions do not establish forgery.")
+                if notes
+                else (
+                    f"PDF metadata is consistent. Producer: '{producer or 'N/A'}', "
+                    f"CreationDate: {creation_date.isoformat() if creation_date else 'N/A'}. "
+                    "No timestamp inversions detected."
+                )
+            )
             results.append(
                 DetectorResult(
                     name="pdf_metadata_integrity",
                     score=0.0,
                     confidence=0.85,
                     status="passed",
-                    evidence=(
-                        f"PDF metadata is consistent. Producer: '{producer or 'N/A'}', "
-                        f"CreationDate: {creation_date.isoformat() if creation_date else 'N/A'}. "
-                        "No editing software signatures or timestamp inversions detected."
-                    ),
+                    evidence=evidence_str,
                     boxes=[],
                 )
             )
@@ -285,7 +287,7 @@ class PDFFileForensicsDetector:
         struct_findings: list[str] = []
         struct_score = 0.0
 
-        # Count %%EOF markers
+        # Count %%EOF markers (revision indicators, not verified history)
         eof_matches = list(re.finditer(rb"%%EOF", raw_bytes))
         eof_count = len(eof_matches)
 
@@ -293,7 +295,6 @@ class PDFFileForensicsDetector:
             struct_score += 0.85
             struct_findings.append("Missing %%EOF end-of-file marker; PDF stream is incomplete or truncated.")
         elif eof_count > 1:
-            # Incremental updates detected
             last_eof_end = eof_matches[-1].end()
             trailing_bytes = len(raw_bytes) - last_eof_end
             if trailing_bytes > 2048:
@@ -303,8 +304,9 @@ class PDFFileForensicsDetector:
                 )
             else:
                 struct_findings.append(
-                    f"Document contains {eof_count} incremental revision(s) (%%EOF count). "
-                    "Incremental saves occur in legitimate workflows (form filling, signatures, annotations)."
+                    f"Document contains {eof_count} incremental revision indicator(s) (%%EOF count). "
+                    "Incremental saves occur in legitimate workflows (form filling, signatures, annotations) "
+                    "and are revision indicators rather than verified revision history or proof of forgery."
                 )
         else:
             # Single %%EOF

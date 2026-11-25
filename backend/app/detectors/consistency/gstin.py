@@ -164,24 +164,76 @@ def validate_gstin_candidates(fields: dict[str, Any]) -> list[DetectorResult]:
             )
         ]
 
-    # Handle multiple conflicting candidates
+    # Handle multiple distinct candidates (e.g. Supplier GSTIN and Buyer/Recipient GSTIN)
     if len(distinct_candidates) > 1:
-        # Check if all distinct candidates are valid or conflicting
-        boxes: list[BoundingBox] = []
-        for c in distinct_candidates:
-            boxes.extend(_extract_bounding_boxes("gstin", c, fields))
+        invalid_candidates: list[tuple[str, str, float | None]] = []
+        valid_candidates: list[str] = []
+        all_boxes: list[BoundingBox] = []
+
+        for cand in distinct_candidates:
+            c_boxes = _extract_bounding_boxes("gstin", cand, fields)
+            all_boxes.extend(c_boxes)
+            c_conf = _get_ocr_confidence("gstin", cand, fields)
+
+            if len(cand) != 15:
+                invalid_candidates.append((cand, f"invalid length {len(cand)}", c_conf))
+            elif not GSTIN_REGEX.match(cand):
+                invalid_candidates.append((cand, "violates 15-char structure pattern", c_conf))
+            elif cand[:2] not in GST_STATE_CODES:
+                invalid_candidates.append((cand, f"unrecognized state code '{cand[:2]}'", c_conf))
+            else:
+                expected_c = compute_gstin_checksum(cand[:14])
+                if expected_c != cand[14]:
+                    invalid_candidates.append(
+                        (cand, f"checksum mismatch (expected '{expected_c}', got '{cand[14]}')", c_conf)
+                    )
+                else:
+                    valid_candidates.append(cand)
+
+        if not invalid_candidates:
+            # All candidates are structurally valid (standard B2B supplier and recipient GSTINs)
+            return [
+                DetectorResult(
+                    name="gstin_validation",
+                    score=0.0,
+                    confidence=0.90,
+                    status="passed",
+                    evidence=(
+                        f"Extracted {len(valid_candidates)} distinct valid GSTINs ({', '.join(valid_candidates)}). "
+                        "Multiple valid GSTINs legitimately represent supplier and recipient entities on B2B invoices. "
+                        "Note: Valid GSTIN structure does not establish actual registration or ownership."
+                    ),
+                    boxes=all_boxes,
+                )
+            ]
+
+        # There are invalid candidates; check if OCR uncertainty softens them
+        has_low_ocr = any(conf is not None and conf < 0.65 for _, _, conf in invalid_candidates)
+        err_details = "; ".join(f"'{c}': {reason}" for c, reason, _ in invalid_candidates)
+
+        if has_low_ocr:
+            return [
+                DetectorResult(
+                    name="gstin_validation",
+                    score=0.30,
+                    confidence=0.50,
+                    status="inconclusive",
+                    evidence=(
+                        f"Extracted GSTIN candidate defects detected ({err_details}), "
+                        "but low OCR confidence indicates potential extraction degradation."
+                    ),
+                    boxes=all_boxes,
+                )
+            ]
 
         return [
             DetectorResult(
                 name="gstin_validation",
-                score=0.55,
-                confidence=0.70,
+                score=0.85,
+                confidence=0.85,
                 status="suspicious",
-                evidence=(
-                    f"Multiple conflicting GSTIN candidates extracted: {distinct_candidates}. "
-                    "Unresolved ambiguity in GST identity across document fields."
-                ),
-                boxes=boxes,
+                evidence=f"Invalid GSTIN candidate(s) detected: {err_details}.",
+                boxes=all_boxes,
             )
         ]
 

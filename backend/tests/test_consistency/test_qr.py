@@ -78,3 +78,40 @@ def test_validate_qr_consistency_missing():
     assert len(results) == 1
     assert results[0].status == "inconclusive"
     assert "detected=False" in results[0].evidence
+
+
+def test_validate_qr_image_based_decoding(tmp_path):
+    import qrcode
+    from app.detectors.consistency import analyze
+
+    claims = {"SellerGstin": "27AAPFU0939F1ZV", "DocNo": "INV-REAL-999", "TotInvVal": "2500.00"}
+    token = _make_dummy_jwt(claims)
+
+    # Generate synthetic QR image file
+    qr = qrcode.QRCode(box_size=10, border=2)
+    qr.add_data(token)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    qr_path = tmp_path / "page-0.png"
+    img.save(str(qr_path))
+
+    # Pass image via pages parameter
+    fields = {
+        "gstin": ["27AAPFU0939F1ZV"],
+        "invoice_number": ["INV-REAL-999"],
+        "total": ["2,500.00"],
+    }
+    results = validate_qr_consistency([qr_path], fields)
+    assert len(results) == 1
+    res = results[0]
+    assert res.status == "passed"
+    assert res.score == 0.0
+    assert "QR detected=True" in res.evidence
+    assert "QR decoded=True" in res.evidence
+    assert "payload_checked=True" in res.evidence
+    assert "Grand total matches" in res.evidence
+    assert "Cryptographic signature: NOT verified" in res.evidence
+    assert len(res.boxes) == 1
+    assert res.boxes[0].page == 0
+    assert res.boxes[0].w > 0
+

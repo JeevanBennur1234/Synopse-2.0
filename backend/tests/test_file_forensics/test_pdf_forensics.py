@@ -94,15 +94,15 @@ def test_file_forensics_clean_pdf(tmp_path):
     assert struct_res.score == 0.0
 
 
-def test_file_forensics_editing_software_detected(tmp_path):
+def test_file_forensics_editing_software_benign(tmp_path):
     pdf = _create_minimal_pdf(
         tmp_path, "edited.pdf", producer="iLovePDF REST API Client", creator="Canva Design"
     )
     results = analyze(pdf, [], {})
     meta_res = next(r for r in results if r.name == "pdf_metadata_integrity")
-    assert meta_res.status == "suspicious"
-    assert meta_res.score >= 0.45
-    assert "Editing software signature detected" in meta_res.evidence
+    assert meta_res.status == "passed"
+    assert meta_res.score == 0.0
+    assert "legitimate editing software metadata and incremental revisions do not establish forgery" in meta_res.evidence
 
 
 def test_file_forensics_timestamp_inversion(tmp_path):
@@ -134,7 +134,9 @@ def test_file_forensics_incremental_revision_benign(tmp_path):
     results = analyze(pdf, [], {})
     struct_res = next(r for r in results if r.name == "pdf_structural_integrity")
     # Legitimate incremental saves are not classified as forgery
-    assert "incremental revision(s)" in struct_res.evidence
+    assert "incremental revision indicator(s)" in struct_res.evidence
+    assert struct_res.status == "passed"
+    assert struct_res.score == 0.0
 
 
 def test_file_forensics_missing_file():

@@ -138,13 +138,14 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
         results.append(
             DetectorResult(
                 name="invoice_arithmetic_consistency",
-                score=0.60,
-                confidence=0.75,
-                status="suspicious",
+                score=0.0,
+                confidence=0.0,
+                status="inconclusive",
                 evidence=(
-                    "Multiple conflicting candidate values extracted for financial fields: "
+                    "Multiple candidate values extracted for financial fields ("
                     + ", ".join(conflicting_fields)
-                    + ". Cannot verify arithmetic without resolving candidate ambiguity."
+                    + "), which may legitimately represent different invoice sections or tax subtotals. "
+                    "Unresolved candidate ambiguity is treated as inconclusive."
                 ),
                 boxes=all_boxes,
             )

@@ -88,15 +88,16 @@ def test_validate_invoice_arithmetic_missing_fields_inconclusive():
     assert tot_res.status == "inconclusive"
 
 
-def test_validate_invoice_arithmetic_conflicting_candidates():
+def test_validate_invoice_arithmetic_multiple_financial_candidates_inconclusive():
     fields = {
         "subtotal": ["1,000.00", "1,500.00"],
         "total": ["1,180.00"],
     }
     results = validate_invoice_arithmetic(fields)
     tot_res = next(r for r in results if r.name == "invoice_arithmetic_consistency")
-    assert tot_res.status == "suspicious"
-    assert "Multiple conflicting candidate values" in tot_res.evidence
+    assert tot_res.status == "inconclusive"
+    assert tot_res.score == 0.0
+    assert "Unresolved candidate ambiguity is treated as inconclusive" in tot_res.evidence
 
 
 def test_validate_line_items_arithmetic_clean():
