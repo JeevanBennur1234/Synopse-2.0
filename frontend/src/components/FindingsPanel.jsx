@@ -145,6 +145,12 @@ export function FindingsPanel({
                               >
                                 {st.label}
                               </span>
+                              {finding.status === "suspicious" && finding.severity && (
+                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-700 capitalize">
+                                  {finding.severity} &bull;{" "}
+                                  {finding.corroborated ? "corroborated" : "independent"}
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-3 text-xs text-slate-600">
                               <span>

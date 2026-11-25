@@ -26,7 +26,7 @@ def _det_noise(shape: tuple[int, int], seed: int, amp: int) -> np.ndarray:
 
 
 def _assert_contract(results: list[DetectorResult], page_sizes: list[tuple[int, int]]) -> None:
-    assert len(results) == 4
+    assert len(results) == 5
     for r in results:
         assert isinstance(r, DetectorResult)
         assert 0.0 <= r.score <= 1.0

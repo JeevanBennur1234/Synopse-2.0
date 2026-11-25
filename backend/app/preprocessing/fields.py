@@ -9,7 +9,8 @@ def extract(text):
         "invoice_number": r"(?im)\binvoice[ \t]*(?:no\.?|number|#)[ \t]*:?[ \t]*([\w/-]+)",
     }
     for key,label in {"total":r"grand total|invoice total|total amount|total","subtotal":r"sub[ \t]*total|taxable value","cgst":"CGST","sgst":"SGST","igst":"IGST","utgst":"UTGST","cess":"cess","discount":"discount","opening_balance":"opening balance","closing_balance":"closing balance"}.items():
-        patterns[key]=r"(?im)^[ \t]*(?:"+label+r")[ \t]*:?[ \t]*"+AMOUNT+r"[ \t]*$"
+        rate = r"(?:[ \t]*\([ \t]*\d+(?:\.\d+)?[ \t]*%[ \t]*\))?" if key in {"cgst", "sgst", "utgst", "igst", "cess"} else ""
+        patterns[key]=r"(?im)^[ \t]*(?:"+label+r")"+rate+r"[ \t]*:?[ \t]*"+AMOUNT+r"[ \t]*$"
     date = r"(\d{4}-\d{2}-\d{2}|\d{1,2}[-/]\d{1,2}[-/]\d{4})"
     for key,label in {"invoice_date":"invoice date","due_date":"due date"}.items():
         patterns[key]=r"(?im)^\s*"+label+r"[ \t]*:?[ \t]*"+date

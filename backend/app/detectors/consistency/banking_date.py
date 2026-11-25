@@ -103,14 +103,21 @@ def _extract_boxes(field_keys: list[str], fields: dict[str, Any]) -> list[Boundi
     return boxes
 
 
-def _get_ocr_conf(field_key: str, fields: dict[str, Any]) -> float | None:
+def _get_ocr_conf(
+    field_key: str, fields: dict[str, Any], candidate: str | None = None
+) -> float | None:
     locations = fields.get("_field_locations")
     if isinstance(locations, dict) and field_key in locations:
         loc_data = locations[field_key]
         items = loc_data if isinstance(loc_data, list) else [loc_data]
         for item in items:
             if isinstance(item, dict):
+                text = str(item.get("text") or item.get("value") or "").strip().upper()
+                if candidate is not None and text and text != candidate:
+                    continue
                 conf = item.get("confidence")
+                if candidate is not None and conf is None and text == candidate:
+                    return None
                 if isinstance(conf, (int, float)) and 0.0 <= conf <= 1.0:
                     return float(conf)
     return None
@@ -251,21 +258,27 @@ def validate_date_and_banking(fields: dict[str, Any]) -> list[DetectorResult]:
             )
         )
     else:
-        distinct_ifsc = sorted(list(set(ifsc_candidates)))
+        distinct_ifsc = sorted(set(ifsc_candidates))
+        confidences = {code: _get_ocr_conf("ifsc", fields, code) for code in distinct_ifsc}
+        reliable = [code for code, conf in confidences.items() if conf is None or conf >= 0.65]
         if len(distinct_ifsc) > 1:
+            is_uncertain = len(reliable) < 2
+            evidence = f"Multiple conflicting IFSC candidates extracted: {distinct_ifsc}."
+            if is_uncertain:
+                evidence += " OCR confidence is below 0.65 for candidates contributing to the conflict."
             results.append(
                 DetectorResult(
                     name="ifsc_validation",
-                    score=0.60,
-                    confidence=0.75,
-                    status="suspicious",
-                    evidence=f"Multiple conflicting IFSC candidates extracted: {distinct_ifsc}.",
+                    score=0.0 if is_uncertain else 0.60,
+                    confidence=0.0 if is_uncertain else 0.75,
+                    status="inconclusive" if is_uncertain else "suspicious",
+                    evidence=evidence,
                     boxes=ifsc_boxes,
                 )
             )
         else:
             cand_ifsc = distinct_ifsc[0]
-            ocr_conf = _get_ocr_conf("ifsc", fields)
+            ocr_conf = confidences[cand_ifsc]
             is_low_ocr = ocr_conf is not None and ocr_conf < 0.65
 
             if IFSC_REGEX.match(cand_ifsc):
