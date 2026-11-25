@@ -240,6 +240,9 @@ export function formatFieldLabel(key = "") {
 }
 
 export function formatRiskSummary(result) {
+  if (result.insufficient_core_evidence) {
+    return "Insufficient evidence, manual review required";
+  }
   const label = (RISK_STYLES[result.risk_level] || RISK_STYLES.inconclusive).label;
   const count = (result.findings || []).filter((finding) => finding.status === "suspicious").length;
   if (result.risk_level === "low" && count > 0) {

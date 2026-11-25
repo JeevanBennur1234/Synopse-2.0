@@ -125,7 +125,7 @@ export function RiskOverview({ result }) {
               <div className="flex items-center gap-2">
                 <Gauge className="h-4 w-4 text-slate-600" />
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-                  Engine Evidence Coverage
+                  Evidence Coverage
                 </h3>
               </div>
               <span className="text-sm font-bold text-slate-900">
