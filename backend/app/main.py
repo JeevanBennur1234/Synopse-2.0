@@ -8,6 +8,7 @@ from typing import Literal
 from app.schemas import DetectorResult
 from app.preprocessing.document import validate, process
 from app.preprocessing.fields import locate
+from app.preprocessing.tables import extract_tables
 from app.pipeline.orchestrator import execute
 from app.scoring.risk import calculate
 
@@ -47,7 +48,7 @@ class PageResult(BaseModel):
 
 class EngineRun(BaseModel):
     engine: str
-    status: Literal['completed', 'inconclusive', 'error', 'unavailable']
+    status: Literal['completed', 'inconclusive', 'error', 'unavailable', 'not_applicable']
     finding_count: int
 
 class JobResult(BaseModel):
@@ -88,10 +89,15 @@ def run(job, source):
         pages, fields, warnings = process(source)
         for page in pages:
             page["preview_url"] = f'/result/{job["job_id"]}/pages/{page["page"]}'
-        findings, runs, detector_warnings = execute(source, pages, fields)
+        locations = locate(pages, fields)
+        context = dict(fields, _pages=pages, _field_locations=locations)
+        tables, table_warnings = extract_tables(pages)
+        context.update(tables)
+        warnings.extend(table_warnings)
+        findings, runs, detector_warnings = execute(source, pages, context)
         risk = calculate(runs)
         job.update(**risk)
-        job.update(status="completed", pages=pages, fields=fields, field_locations=locate(pages, fields), findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
+        job.update(status="completed", pages=pages, fields=fields, field_locations=locations, findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
     except Exception:
         logging.exception("Processing failed for job %s", job["job_id"])
         job.update(status="failed", warnings=["Document processing failed."])

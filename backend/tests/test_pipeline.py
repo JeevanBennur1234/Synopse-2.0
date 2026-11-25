@@ -28,7 +28,7 @@ def test_pipeline(tmp_path):
     assert len(warnings)==4
 
 def test_unregistered(tmp_path):
-    findings,runs,warnings=execute(tmp_path/"original.pdf",[],{})
+    findings,runs,warnings=execute(tmp_path/"original.pdf",[],{},[Engine(k) for k in ("visual","file_forensics","consistency")])
     assert not findings
     assert len(runs)==3
     assert all(r["status"]=="unavailable" for r in runs)

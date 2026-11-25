@@ -7,3 +7,8 @@ httpx
 PyMuPDF
 Pillow
 pytesseract
+
+opencv-python==5.1.0.95
+numpy==2.4.6
+qrcode==8.2
+pyzbar==0.1.9
