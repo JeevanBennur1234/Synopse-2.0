@@ -2,8 +2,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from copy import deepcopy
 import logging
+from functools import partial
 from app.schemas import DetectorResult
 from app.detectors.base import Detector
+from app.detectors.execution import detector_timeout, run_detectors
 
 @dataclass(frozen=True)
 class Engine:
@@ -23,13 +25,21 @@ def execute(source: Path, pages: list[dict], fields: dict, engines=None):
     findings, runs, warnings = [], [], []
     paths = [source.parent / f"page-{p['page']}.png" for p in pages]
     dimensions = {p["page"]: (p["width"], p["height"]) for p in pages}
-    for engine in ENGINES if engines is None else engines:
+    engines = tuple(ENGINES if engines is None else engines)
+    active = [engine for engine in engines if engine.detector is not None]
+    outputs = iter(run_detectors(
+        [partial(engine.detector.analyze, source, list(paths), deepcopy(fields)) for engine in active],
+        detector_timeout() + 0.5,
+    ))
+    for engine in engines:
         if engine.detector is None:
             runs.append(dict(engine=engine.name, status="unavailable", finding_count=0))
             warnings.append(f"{engine.name}: detector not registered")
             continue
         try:
-            raw = engine.detector.analyze(source, list(paths), deepcopy(fields))
+            raw = next(outputs)
+            if isinstance(raw, Exception):
+                raise raw
             if not isinstance(raw, list):
                 raise TypeError("Detector must return a list")
             results = [DetectorResult.model_validate(r.model_dump() if isinstance(r, DetectorResult) else r) for r in raw]
@@ -48,7 +58,7 @@ def execute(source: Path, pages: list[dict], fields: dict, engines=None):
         except Exception:
             logging.exception("Detector failed: %s", engine.name)
             runs.append(dict(engine=engine.name,status="error",finding_count=0))
-            warnings.append(f"{engine.name}: detector execution failed")
+            warnings.append(f"{engine.name}: {raw}" if isinstance(raw, TimeoutError) else f"{engine.name}: detector execution failed")
     from app.scoring.risk import evaluate
     _, meta = evaluate(runs)
     runs = meta["annotated_runs"]
