@@ -97,9 +97,9 @@ def _extract_bounding_boxes(
         for item in candidates:
             if not isinstance(item, dict):
                 continue
-            # Match candidate text if provided
-            item_text = item.get("text", "")
-            if item_text and candidate_str and item_text.strip() != candidate_str.strip():
+            # Match candidate text/value if provided
+            item_text = str(item.get("text") or item.get("value") or "")
+            if item_text and candidate_str and item_text.strip().upper() != candidate_str.strip().upper():
                 continue
             bbox = item.get("bbox") or item.get("box")
             page_idx = item.get("page", 0)
@@ -121,8 +121,8 @@ def _get_ocr_confidence(field_key: str, candidate_str: str, fields: dict[str, An
         candidates = loc_data if isinstance(loc_data, list) else [loc_data]
         for item in candidates:
             if isinstance(item, dict):
-                item_text = item.get("text", "")
-                if not item_text or item_text.strip() == candidate_str.strip():
+                item_text = str(item.get("text") or item.get("value") or "")
+                if not item_text or item_text.strip().upper() == candidate_str.strip().upper():
                     conf = item.get("confidence")
                     if isinstance(conf, (int, float)) and 0.0 <= conf <= 1.0:
                         return float(conf)
