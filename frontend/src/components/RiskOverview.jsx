@@ -5,7 +5,7 @@ import {
   Gauge,
   Info,
 } from "lucide-react";
-import { RISK_STYLES } from "../utils/forensics";
+import { formatRiskSummary, RISK_STYLES } from "../utils/forensics";
 
 const ENGINE_LABELS = {
   visual: "Visual Forensics",
@@ -89,7 +89,7 @@ export function RiskOverview({ result }) {
               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-semibold ${style.badge}`}
             >
               <RiskIcon className="h-3.5 w-3.5" />
-              <span>{style.label}</span>
+              <span>{formatRiskSummary(result)}</span>
             </span>
           </div>
 

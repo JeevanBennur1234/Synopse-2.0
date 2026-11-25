@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+from functools import partial
 from pathlib import Path
 from typing import Any
 
 from app.detectors.base import Detector
+from app.detectors.execution import detector_timeout, run_detectors
 from app.detectors.image_metadata.analyzer import ImageMetadataDetector
 from app.detectors.visual.copy_move import CopyMoveDetector
 from app.detectors.visual.ela import ELADetector
@@ -35,22 +38,25 @@ class VisualForensicsDetector:
     ) -> list[DetectorResult]:
         """Execute all visual detectors and isolate any per-detector failures."""
         results: list[DetectorResult] = []
-        for detector in self._detectors:
-            det_name = getattr(detector, "name", detector.__class__.__name__)
-            try:
-                sub_results = detector.analyze(source, pages, fields)
-                results.extend(sub_results)
-            except Exception as exc:
+        outputs = run_detectors(
+            [partial(detector.analyze, source, list(pages), deepcopy(fields))
+             for detector in self._detectors],
+            detector_timeout(),
+        )
+        for detector, output in zip(self._detectors, outputs):
+            if isinstance(output, Exception):
+                det_name = getattr(detector, "name", detector.__class__.__name__)
                 results.append(
                     DetectorResult(
                         name=det_name,
                         score=0.0,
                         confidence=0.0,
                         status="error",
-                        evidence=f"Detector '{det_name}' raised an unexpected error: {exc}",
-                        boxes=[],
+                        evidence=f"Detector '{det_name}': {output}",
                     )
                 )
+            else:
+                results.extend(output)
         return results
 
 

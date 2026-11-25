@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 import sys
 
+import cv2
+
 from app.adapters.gst_registry import check_registry
 from app.explainability import explain
 from app.pipeline.orchestrator import execute
@@ -18,6 +20,8 @@ from app.scoring.risk import evaluate
 
 def run_pipeline(job_id: str, source: Path) -> dict:
     """Execute document preprocessing, forensic detectors, scoring, and explanation."""
+    # Detector-level parallelism owns the CPU concurrency in this worker.
+    cv2.setNumThreads(1)
     pages, fields, warnings = process(source)
     for page in pages:
         page["preview_url"] = f"/result/{job_id}/pages/{page['page']}"

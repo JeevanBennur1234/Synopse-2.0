@@ -101,6 +101,19 @@ def _extract_boxes(field_key: str, fields: dict[str, Any]) -> list[BoundingBox]:
     return boxes
 
 
+def has_low_field_confidence(fields: dict[str, Any], keys: tuple[str, ...]) -> bool:
+    locations = fields.get("_field_locations") or {}
+    for key in keys:
+        if not fields.get(key):
+            continue
+        entries = locations.get(key, [])
+        for entry in entries if isinstance(entries, list) else [entries]:
+            confidence = entry.get("confidence") if isinstance(entry, dict) else None
+            if isinstance(confidence, (int, float)) and 0 <= confidence < 0.65:
+                return True
+    return False
+
+
 def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
     """Validates invoice financial arithmetic and line-item integrity."""
     results: list[DetectorResult] = []
@@ -181,6 +194,19 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                     f"Subtotal or grand total is missing (subtotal={sub_status}, total={tot_status}); "
                     "cannot verify invoice arithmetic."
                 ),
+                boxes=all_boxes,
+            )
+        )
+    elif has_low_field_confidence(
+        fields, ("subtotal", "total", "discount", "cgst", "sgst", "utgst", "igst", "cess")
+    ):
+        results.append(
+            DetectorResult(
+                name="invoice_arithmetic_consistency",
+                score=0.0,
+                confidence=0.0,
+                status="inconclusive",
+                evidence="A contributing invoice amount has OCR confidence below 0.65.",
                 boxes=all_boxes,
             )
         )
@@ -301,7 +327,21 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                     f"(difference: {sub_diff}, tolerance: {DEFAULT_ROUNDING_TOLERANCE})"
                 )
 
-        if line_item_errors:
+        if any(
+            isinstance(item.get("confidence"), (int, float)) and 0 <= item["confidence"] < 0.65
+            for item in line_items if isinstance(item, dict)
+        ) or (sub_status == "resolved" and has_low_field_confidence(fields, ("subtotal",))):
+            results.append(
+                DetectorResult(
+                    name="invoice_line_items_arithmetic",
+                    score=0.0,
+                    confidence=0.0,
+                    status="inconclusive",
+                    evidence="A contributing line item or subtotal has OCR confidence below 0.65.",
+                    boxes=line_boxes,
+                )
+            )
+        elif line_item_errors:
             results.append(
                 DetectorResult(
                     name="invoice_line_items_arithmetic",
