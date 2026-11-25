@@ -20,6 +20,10 @@ def extract(text):
     for key,label in [("gstin","GSTIN"),("ifsc","IFSC")]:
         candidates=re.findall(r"(?im)\b"+label+r"(?:[ \t]+(?:no\.?|code))?[ \t]*:?[ \t]+([A-Z0-9-]{3,30})\b",text)
         result[key]=list(dict.fromkeys(result[key]+[v.upper() for v in candidates]))
+    # Recover explicitly labelled amounts embedded in OCR lines.
+    for key,label in {"subtotal":r"sub[ \t]*total|taxable value","cgst":"CGST","sgst":"SGST","igst":"IGST"}.items():
+        values=re.findall(r"(?im)\b(?:"+label+r")[ \t]*:[ \t]*"+AMOUNT+r"[ \t]*$",text)
+        result[key]=list(dict.fromkeys(result[key]+values))
     return result
 
 def locate(pages, fields):

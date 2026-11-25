@@ -244,6 +244,18 @@ def _analyze_page(
                 if orig_box is not None:
                     boxes.append(orig_box)
 
+    if not boxes:
+        # Exact duplicated two-dimensional ink components: useful for sparse stamps
+        # where ORB has too few distinctive keypoints. Repeated logos remain benign alternatives.
+        _, _, stats, _ = cv2.connectedComponentsWithStats((gray_orig < 100).astype(np.uint8))
+        candidates=[tuple(map(int,r[:4])) for r in stats[1:] if r[2]>=32 and r[3]>=32 and 0.15<=r[2]/r[3]<=6 and r[4]>=300 and r[2]*r[3]<0.15*orig_w*orig_h]
+        for i,a in enumerate(candidates[:100]):
+            for b in candidates[i+1:100]:
+                if a[2:]!=b[2:] or np.hypot(a[0]-b[0],a[1]-b[1])<max(a[2],a[3]): continue
+                ax,ay,w,h=a; bx,by,_,_=b
+                if not np.array_equal(gray_orig[ay:ay+h,ax:ax+w],gray_orig[by:by+h,bx:bx+w]): continue
+                pair=[_clamp_box(x,y,w,h,orig_w,orig_h,page_idx) for x,y,w,h in (a,b)]
+                return "suspicious",0.65,0.75,[b for b in pair if b is not None],f"Page {page_idx}: exact duplicated ink component; repeated logos or stamps may be legitimate."
     if boxes:
         raw_score = (
             0.45

@@ -47,6 +47,15 @@ class ConsistencyDetector:
         # 5. QR Code Presence, Decoding & Field Cross-Verification
         findings.extend(validate_qr_consistency(pages, fields))
 
+        # OCR-only discrepancies require corroboration when components are unreadable.
+        import re
+        ocr_pages=[p for p in fields.get("_pages",[]) if p.get("method")=="ocr"]
+        if ocr_pages:
+            text="\n".join(p["text"] for p in ocr_pages)
+            for i,f in enumerate(findings):
+                missing_tax=any(re.search(r"\b"+k+r"\b",text,re.I) and not fields.get(k.lower()) for k in ("CGST","SGST","IGST","UTGST","cess"))
+                if f.status=="suspicious" and f.name=="invoice_arithmetic_consistency" and missing_tax:
+                    findings[i]=f.model_copy(update={"status":"inconclusive","score":0.0,"confidence":0.0,"evidence":"OCR did not reliably extract all declared tax components; arithmetic discrepancy requires manual verification.","boxes":[]})
         return findings
 
 

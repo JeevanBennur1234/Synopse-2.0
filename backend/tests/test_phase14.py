@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from fastapi.testclient import TestClient
 from app.main import app
 from app.preprocessing.tables import extract_tables
@@ -18,3 +18,16 @@ def test_bank_samples():
         f=next(f for f in j['findings'] if f['name']=='bank_statement_balance_consistency')
         assert f['status']==('suspicious' if expected else 'passed')
         assert j['review_required']==expected
+
+
+def test_exact_stamp_clone():
+    from app.detectors.visual.copy_move import CopyMoveDetector
+    from PIL import Image, ImageDraw
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        p=Path(d)/"test.png"
+        im=Image.new("RGB",(900,700),"white"); draw=ImageDraw.Draw(im)
+        draw.ellipse((100,100,240,210),outline="black",width=5)
+        draw.line((130,150,200,170),fill="black",width=6)
+        im.paste(im.crop((90,90,250,220)),(500,350));im.save(p)
+        assert CopyMoveDetector().analyze(p,[p],{})[0].status=="suspicious"
