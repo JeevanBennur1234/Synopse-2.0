@@ -49,4 +49,12 @@ def execute(source: Path, pages: list[dict], fields: dict, engines=None):
             logging.exception("Detector failed: %s", engine.name)
             runs.append(dict(engine=engine.name,status="error",finding_count=0))
             warnings.append(f"{engine.name}: detector execution failed")
+    from app.scoring.risk import evaluate
+    _, meta = evaluate(runs)
+    runs = meta["annotated_runs"]
+    findings = [
+        DetectorResult.model_validate(f)
+        for r in runs
+        for f in r.get("findings", [])
+    ]
     return findings, runs, warnings

@@ -20,7 +20,25 @@ from app.detectors.consistency.arithmetic import (
     parse_decimal_candidate,
     resolve_candidate_field,
 )
+from app.detectors.consistency.gstin import GST_STATE_CODES
 from app.schemas import BoundingBox, DetectorResult
+
+
+def _normalize_state_key(raw: str) -> str:
+    """Normalize explicit state names or 2-digit GST state codes (e.g., '29 - Karnataka' -> '29')."""
+    text = raw.strip().lower()
+    if not text:
+        return ""
+    m_code = re.match(r"^(\d{2})\b", text)
+    if m_code and m_code.group(1) in GST_STATE_CODES:
+        return m_code.group(1)
+    m_paren = re.search(r"\((\d{2})\)", text)
+    if m_paren and m_paren.group(1) in GST_STATE_CODES:
+        return m_paren.group(1)
+    for code, name in GST_STATE_CODES.items():
+        if name.lower() == text or name.lower() in text:
+            return code
+    return text
 
 STANDARD_GST_SLABS = (
     Decimal("0.0"),
@@ -156,9 +174,13 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
             )
         )
 
-    # 2. IGST vs CGST/SGST Jurisdictional Application
+    # 2. IGST vs CGST/SGST/UTGST Jurisdictional Application
     has_igst = igst_status == "resolved" and igst is not None and igst > Decimal("0.00")
-    has_intra = (has_cgst and cgst > Decimal("0.00")) or (has_sgst and sgst > Decimal("0.00"))  # type: ignore[operator]
+    has_intra = (
+        (has_cgst and cgst > Decimal("0.00"))
+        or (has_sgst and sgst > Decimal("0.00"))
+        or (has_utgst and utgst > Decimal("0.00"))
+    )  # type: ignore[operator]
 
     # Check supplier state and place of supply
     supplier_state = fields.get("supplier_state") or fields.get("supplier_location")
@@ -175,15 +197,17 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                 confidence=0.85,
                 status="suspicious",
                 evidence=(
-                    f"Simultaneous presence of inter-state IGST ({igst}) and intra-state CGST/SGST ({cgst}/{sgst}). "
+                    f"Simultaneous presence of inter-state IGST ({igst}) and intra-state CGST/SGST/UTGST ({cgst}/{state_tax_val}). "
                     "A single supply cannot be concurrently inter-state and intra-state without explicit multi-item jurisdiction."
                 ),
                 boxes=tax_boxes,
             )
         )
     elif sup_str and pos_str:
-        # Both locations explicitly known
-        is_same_state = (sup_str.lower() == pos_str.lower())
+        # Both locations explicitly known (normalize state codes and names)
+        sup_norm = _normalize_state_key(sup_str)
+        pos_norm = _normalize_state_key(pos_str)
+        is_same_state = (sup_norm == pos_norm)
         if is_same_state and has_igst:
             results.append(
                 DetectorResult(
@@ -206,7 +230,7 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
                     confidence=0.85,
                     status="suspicious",
                     evidence=(
-                        f"Intra-state CGST/SGST ({cgst}/{sgst}) levied for inter-state supply: "
+                        f"Intra-state CGST/{state_tax_name} ({cgst}/{state_tax_val}) levied for inter-state supply: "
                         f"supplier state '{sup_str}' differs from place of supply '{pos_str}'."
                     ),
                     boxes=tax_boxes,
@@ -256,8 +280,14 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
     # 3. Tax Amount vs Taxable Value & Rate
     raw_rate = fields.get("tax_rate") or fields.get("gst_rate")
     extracted_rate: Decimal | None = None
+    has_mixed_rates = False
     if isinstance(raw_rate, list) and raw_rate:
-        extracted_rate = _parse_tax_rate(raw_rate[0])
+        parsed_rates = [r for r in (_parse_tax_rate(item) for item in raw_rate) if r is not None]
+        distinct_rates = set(parsed_rates)
+        if len(distinct_rates) > 1:
+            has_mixed_rates = True
+        elif len(distinct_rates) == 1:
+            extracted_rate = parsed_rates[0]
     elif raw_rate is not None and not isinstance(raw_rate, list):
         extracted_rate = _parse_tax_rate(raw_rate)
 
@@ -279,7 +309,18 @@ def validate_tax_consistency(fields: dict[str, Any]) -> list[DetectorResult]:
         total_tax += cess
 
     if sub_status == "resolved" and subtotal is not None and subtotal > Decimal("0.00") and tax_count > 0:
-        if extracted_rate is not None:
+        if has_mixed_rates:
+            results.append(
+                DetectorResult(
+                    name="tax_rate_arithmetic",
+                    score=0.0,
+                    confidence=0.0,
+                    status="inconclusive",
+                    evidence="Multiple distinct tax rates extracted; mixed-rate line items require per-line tax verification and are treated as inconclusive.",
+                    boxes=tax_boxes,
+                )
+            )
+        elif extracted_rate is not None:
             expected_tax = (subtotal * extracted_rate) / Decimal("100")
             diff = abs(total_tax - expected_tax)
             if diff <= DEFAULT_ROUNDING_TOLERANCE:

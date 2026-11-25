@@ -189,7 +189,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
           <div className="grid grid-cols-3 gap-4 print-break-inside-avoid">
             <div className="rounded-lg border border-slate-200 p-3.5">
               <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
-                Risk Score
+                Heuristic Risk Score (Not Probability)
               </p>
               <p className="text-xl font-bold mt-1">
                 {hasScore ? `${result.risk_score.toFixed(1)} / 100` : "Inconclusive"}
@@ -238,8 +238,11 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
                           {formatDetectorLabel(f.name)}
                         </span>
                         <span className="text-[11px] text-slate-600">
-                          Status: <strong>{st.label}</strong> &bull; Score:{" "}
-                          {Math.round((f.score ?? 0) * 100)}% &bull; Confidence:{" "}
+                          Status: <strong>{st.label}</strong>
+                          {f.status === "suspicious" && f.severity
+                            ? ` (${f.severity}, ${f.corroborated ? "corroborated" : "independent"})`
+                            : ""}{" "}
+                          &bull; Score: {Math.round((f.score ?? 0) * 100)}% &bull; Confidence:{" "}
                           {Math.round((f.confidence ?? 0) * 100)}%
                         </span>
                       </div>

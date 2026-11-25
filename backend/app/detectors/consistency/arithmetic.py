@@ -111,30 +111,45 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
     discount, disc_cands, disc_status = resolve_candidate_field("discount", fields)
     cgst, cgst_cands, cgst_status = resolve_candidate_field("cgst", fields)
     sgst, sgst_cands, sgst_status = resolve_candidate_field("sgst", fields)
+    utgst, utgst_cands, utgst_status = resolve_candidate_field("utgst", fields)
     igst, igst_cands, igst_status = resolve_candidate_field("igst", fields)
+    cess, cess_cands, cess_status = resolve_candidate_field("cess", fields)
 
     all_boxes = (
         _extract_boxes("subtotal", fields)
         + _extract_boxes("total", fields)
         + _extract_boxes("discount", fields)
+        + _extract_boxes("cgst", fields)
+        + _extract_boxes("sgst", fields)
+        + _extract_boxes("utgst", fields)
+        + _extract_boxes("igst", fields)
+        + _extract_boxes("cess", fields)
     )
 
-    # Check for ambiguous conflicting candidates
+    # Check for ambiguous conflicting or unreadable non-empty candidates
     conflicting_fields = []
-    if sub_status == "conflicting":
-        conflicting_fields.append(f"subtotal={sub_cands}")
-    if tot_status == "conflicting":
-        conflicting_fields.append(f"total={tot_cands}")
-    if disc_status == "conflicting":
-        conflicting_fields.append(f"discount={disc_cands}")
-    if cgst_status == "conflicting":
-        conflicting_fields.append(f"cgst={cgst_cands}")
-    if sgst_status == "conflicting":
-        conflicting_fields.append(f"sgst={sgst_cands}")
-    if igst_status == "conflicting":
-        conflicting_fields.append(f"igst={igst_cands}")
+    unreadable_fields = []
+    for fname, cands, fstatus in (
+        ("subtotal", sub_cands, sub_status),
+        ("total", tot_cands, tot_status),
+        ("discount", disc_cands, disc_status),
+        ("cgst", cgst_cands, cgst_status),
+        ("sgst", sgst_cands, sgst_status),
+        ("utgst", utgst_cands, utgst_status),
+        ("igst", igst_cands, igst_status),
+        ("cess", cess_cands, cess_status),
+    ):
+        if fstatus == "conflicting":
+            conflicting_fields.append(f"{fname}={cands}")
+        elif fstatus == "missing" and cands:
+            unreadable_fields.append(f"{fname}={cands}")
 
-    if conflicting_fields:
+    if conflicting_fields or unreadable_fields:
+        detail_parts = []
+        if conflicting_fields:
+            detail_parts.append("conflicting candidates (" + ", ".join(conflicting_fields) + ")")
+        if unreadable_fields:
+            detail_parts.append("unreadable numeric values (" + ", ".join(unreadable_fields) + ")")
         results.append(
             DetectorResult(
                 name="invoice_arithmetic_consistency",
@@ -142,10 +157,14 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
                 confidence=0.0,
                 status="inconclusive",
                 evidence=(
-                    "Multiple candidate values extracted for financial fields ("
-                    + ", ".join(conflicting_fields)
-                    + "), which may legitimately represent different invoice sections or tax subtotals. "
-                    "Unresolved candidate ambiguity is treated as inconclusive."
+                    "Ambiguous or unreadable financial fields ("
+                    + "; ".join(detail_parts)
+                    + "). "
+                    + (
+                        "Unresolved candidate ambiguity is treated as inconclusive."
+                        if conflicting_fields and not unreadable_fields
+                        else "Unresolved candidate ambiguity and unreadable values are treated as inconclusive."
+                    )
                 ),
                 boxes=all_boxes,
             )
@@ -166,18 +185,19 @@ def validate_invoice_arithmetic(fields: dict[str, Any]) -> list[DetectorResult]:
             )
         )
     else:
-        # Compute taxes
+        # Compute taxes (CGST, SGST, UTGST, IGST, and Cess)
         tax_sum = Decimal("0.00")
         has_taxes = False
-        if cgst_status == "resolved" and cgst is not None:
-            tax_sum += cgst
-            has_taxes = True
-        if sgst_status == "resolved" and sgst is not None:
-            tax_sum += sgst
-            has_taxes = True
-        if igst_status == "resolved" and igst is not None:
-            tax_sum += igst
-            has_taxes = True
+        for tax_val, tax_status in (
+            (cgst, cgst_status),
+            (sgst, sgst_status),
+            (utgst, utgst_status),
+            (igst, igst_status),
+            (cess, cess_status),
+        ):
+            if tax_status == "resolved" and tax_val is not None:
+                tax_sum += tax_val
+                has_taxes = True
 
         disc_val = discount if (disc_status == "resolved" and discount is not None) else Decimal("0.00")
 
