@@ -1,0 +1,35 @@
+{
+  "filename": "extra_invoice_tampered_igst_mix.pdf",
+  "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_igst_mix.pdf",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "tax_inconsistency",
+      "description": "Applies both CGST+SGST (1,800.00) and IGST (1,800.00) simultaneously on 10,000.00 subtotal."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 670,
+      "y": 730,
+      "w": 230,
+      "h": 114,
+      "description": "Simultaneous CGST+SGST and IGST lines"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Conflicting intra-state and inter-state GST tax components."
+}

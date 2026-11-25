@@ -55,7 +55,7 @@ export const RISK_STYLES = {
     ring: "text-emerald-700",
     panel: "border-emerald-200 bg-emerald-50/50",
     summary:
-      "All completed forensic and consistency checks passed within normal thresholds. Continue standard verification before financial settlement.",
+      "The aggregate heuristic score is low; individual findings may still require review. Continue standard verification before financial settlement.",
   },
   medium: {
     label: "Medium Risk",
@@ -141,10 +141,23 @@ export function categorizeFinding(name = "") {
   if (VISUAL_DETECTORS.has(key) || key.includes("visual") || key.includes("ela") || key.includes("noise") || key.includes("copy_move")) {
     return "visual";
   }
-  if (FILE_DETECTORS.has(key) || key.includes("pdf") || key.includes("file") || key.includes("qr") || key.includes("metadata")) {
+  if (FILE_DETECTORS.has(key) || key.includes("pdf") || key.includes("file") || key.includes("metadata")) {
     return "file_forensics";
   }
-  if (CONSISTENCY_DETECTORS.has(key) || key.includes("gstin") || key.includes("tax") || key.includes("balance") || key.includes("total") || key.includes("consistency")) {
+  if (
+    CONSISTENCY_DETECTORS.has(key) ||
+    key.includes("gstin") ||
+    key.includes("gst") ||
+    key.includes("tax") ||
+    key.includes("balance") ||
+    key.includes("total") ||
+    key.includes("consistency") ||
+    key.includes("arithmetic") ||
+    key.includes("invoice") ||
+    key.includes("date") ||
+    key.includes("ifsc") ||
+    key.includes("qr")
+  ) {
     return "consistency";
   }
   return "other";

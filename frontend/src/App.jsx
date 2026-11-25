@@ -4,6 +4,7 @@ import { DEMO_SCENARIOS } from "./data/demoSamples";
 import { HeaderBar } from "./components/HeaderBar";
 import { UploadPanel } from "./components/UploadPanel";
 import { RiskOverview } from "./components/RiskOverview";
+import { EvidenceSummary } from "./components/EvidenceSummary";
 import { FindingsPanel } from "./components/FindingsPanel";
 import { FieldsAndWarnings } from "./components/FieldsAndWarnings";
 import { DocumentViewer } from "./components/DocumentViewer";
@@ -220,6 +221,7 @@ export function App() {
         {result && result.status === "completed" && (
           <>
             <RiskOverview result={result} />
+            <EvidenceSummary result={result} />
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
               <div className="xl:col-span-5 space-y-6">
