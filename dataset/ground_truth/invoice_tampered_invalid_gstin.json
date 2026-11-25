@@ -1,0 +1,35 @@
+{
+  "filename": "invoice_tampered_invalid_gstin.pdf",
+  "relative_path": "dataset/tampered/invoice_tampered_invalid_gstin.pdf",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "invalid_gstin",
+      "description": "Seller GSTIN '99INVALID1234Z0' fails Indian GSTIN structure/state-code/checksum rules."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 72,
+      "y": 212,
+      "w": 266,
+      "h": 36,
+      "description": "Invalid Seller GSTIN"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Consistency test: malformed GSTIN with invalid state code 99 and pattern."
+}

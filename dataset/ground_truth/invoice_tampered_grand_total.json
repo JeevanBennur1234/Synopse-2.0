@@ -1,0 +1,35 @@
+{
+  "filename": "invoice_tampered_grand_total.pdf",
+  "relative_path": "dataset/tampered/invoice_tampered_grand_total.pdf",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "grand_total_mismatch",
+      "description": "Subtotal (10,000.00) + CGST (900.00) + SGST (900.00) = 11,800.00, but Grand total reads 19,800.00."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 670,
+      "y": 926,
+      "w": 348,
+      "h": 42,
+      "description": "Altered Grand total value"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Consistency test: inflated grand total."
+}

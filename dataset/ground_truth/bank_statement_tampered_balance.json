@@ -1,0 +1,40 @@
+{
+  "filename": "bank_statement_tampered_balance.pdf",
+  "relative_path": "dataset/tampered/bank_statement_tampered_balance.pdf",
+  "document_type": "bank_statement",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "running_balance_mismatch",
+      "description": "Page 2 row 1 (14/11/2026): previous balance 200,000.00 minus debit 12,000.00 should be 188,000.00, but reads 198,000.00."
+    }
+  ],
+  "affected_page": 1,
+  "known_affected_regions": [
+    {
+      "page": 1,
+      "x": 942,
+      "y": 218,
+      "w": 120,
+      "h": 38,
+      "description": "Inconsistent running balance on page 2"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    },
+    {
+      "page": 1,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Multi-page consistency test: running balance inflated by 10,000.00 on page 2."
+}

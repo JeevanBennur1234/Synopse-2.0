@@ -1,0 +1,26 @@
+{
+  "filename": "invoice_tampered_metadata_edited.jpg",
+  "relative_path": "dataset/tampered/invoice_tampered_metadata_edited.jpg",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "jpg",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "image_metadata",
+      "code": "editing_software_exif",
+      "description": "EXIF Software tag indicates 'Adobe Photoshop CC 2024 (Windows)' with >24h DateTime vs DateTimeOriginal gap."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Member 2 Image Metadata test sample: EXIF editing software keyword and timestamp discrepancy."
+}
