@@ -4,6 +4,7 @@ import { resolveAssetUrl } from "../api/client";
 import {
   FINDING_STATUS_STYLES,
   RISK_STYLES,
+  formatRiskSummary,
   formatDetectorLabel,
   formatFieldLabel,
 } from "../utils/forensics";
@@ -107,6 +108,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
       demo_preview: Boolean(isDemoMode),
       filename: filename || "uploaded-document",
       ...result,
+      risk_summary: formatRiskSummary(result),
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json",
@@ -175,7 +177,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
               <span
                 className={`inline-block px-3 py-1 rounded-full border text-xs font-semibold ${riskStyle.badge}`}
               >
-                {riskStyle.label}
+                {formatRiskSummary(result)}
               </span>
               {isDemoMode && (
                 <p className="mt-1.5 text-[11px] font-semibold text-amber-700">

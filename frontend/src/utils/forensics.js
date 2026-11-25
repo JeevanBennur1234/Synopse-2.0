@@ -238,3 +238,12 @@ export function formatFieldLabel(key = "") {
   };
   return map[key] || formatDetectorLabel(key);
 }
+
+export function formatRiskSummary(result) {
+  const label = (RISK_STYLES[result.risk_level] || RISK_STYLES.inconclusive).label;
+  const count = (result.findings || []).filter((finding) => finding.status === "suspicious").length;
+  if (result.risk_level === "low" && count > 0) {
+    return 'Low risk, ' + count + (count === 1 ? ' signal' : ' signals') + ' found, manual review suggested';
+  }
+  return label;
+}
