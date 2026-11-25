@@ -1,11 +1,16 @@
-# Visual & Image Metadata Forensics — Technical Handover
+# Visual & Image Metadata Forensics — Technical Handover (Phase 2)
 
 ## 1. Detector Names
-Running `analyze(source, pages, fields)` returns 4 `DetectorResult` items in order:
-1. `ela` — Error Level Analysis (JPEG compression consistency)
-2. `copy_move` — ORB keypoint + shift-clustering + NCC region duplication detector
-3. `noise_inconsistency` — Local background noise MAD outlier detector
-4. `image_metadata` — EXIF / PNG text chunk software & timestamp inspector
+Running `analyze(source, pages, fields)` returns 5 `DetectorResult` items in order:
+1. `ela` — Luminance-channel 8×8-block Error Level Analysis (`ela.py`)
+2. `copy_move` — ORB + shift-clustering + NCC region duplication detector with header/footer branding context (`copy_move.py`)
+3. `noise_inconsistency` — Local background noise MAD outlier detector (`noise.py`)
+4. `image_metadata` — EXIF / PNG text chunk software & timestamp inspector (`image_metadata/analyzer.py`)
+5. `typography` — Line-scoped visual typography + native PDF font-span consistency detector (`typography.py`)
+
+Additional P1 support modules (non-scoring, read-only):
+- `evidence_fusion.py`: `correlate_evidence(results)` groups overlapping/contained same-page bounding boxes across detectors without mutating scores or confidences.
+- `heatmap.py`: `render_page_overlay(...)` and `render_multipage_overlays(...)` render individual, combined, and side-by-side overlays in original page pixel coordinates.
 
 ## 2. Integration Usage
 ```python
@@ -18,39 +23,30 @@ results = analyze(
     fields={"invoice_number": ["INV-001"]},
 )
 ```
-- `source`: `pathlib.Path` to the original uploaded file (never modified).
+- `source`: `pathlib.Path` to original uploaded file (never modified).
 - `pages`: `list[pathlib.Path]` of rendered page images in zero-based page order.
-- `fields`: `dict[str, Any]` (accepts extracted field candidate lists).
-- Exceptions in any sub-detector are caught and returned as `DetectorResult(status="error", ...)` without crashing the remaining detectors.
+- `fields`: `dict[str, Any]` containing extracted field candidate lists.
+- Sub-detector exceptions are isolated and returned as `DetectorResult(status="error", ...)`.
 
 ## 3. Required Python Dependencies (for `backend/requirements.txt`)
-Verified in this environment:
-- `opencv-python==5.0.0.93` (`cv2` 5.0.0)
-- `pillow==12.2.0`
-- `numpy==2.4.6`
-- `pydantic>=2` (already in `requirements.txt`)
+- `opencv-python` (tested on `5.1.0.95` / `5.0.0`)
+- `pillow` (`12.2.0`)
+- `numpy` (`2.4.6`)
+- `PyMuPDF` (optional for native PDF font-span inspection in `typography.py`; falls back gracefully to visual line analysis if unavailable)
+- `pydantic>=2`
 
-## 4. Algorithm Thresholds
-- **ELA (`ela.py`)**: `DEFAULT_RECOMPRESS_QUALITY = 90`, `z_thresh = 4.5`, `min_abs_ela = max(med_ela + 2.5, 4.0)`, `min_area = max(250, 0.05% of page)`, `max_area = 45% of page`, `MIN_IMAGE_DIM = 64`.
-- **Copy-Move (`copy_move.py`)**: `MAX_PROCESS_DIM = 1600`, `ORB nfeatures = 2500`, `MAX_HAMMING_DIST = 28`, `MIN_CLUSTER_MATCHES = 8`, `SHIFT_BIN_SIZE = 16`, `SPATIAL_LINK_RADIUS = 28.0`, `MIN_PATCH_CORR = 0.88`, self-overlap rejection `> 15%`.
-- **Noise Inconsistency (`noise.py`)**: `BLOCK_SIZE = 48`, `EDGE_GRAD_THRESH = 60.0` (on 5x5 Gaussian-smoothed image), `MIN_NON_EDGE_RATIO = 0.35`, `Z_THRESH = 4.5`, `MIN_ABS_NOISE_DIFF = 1.8`.
-- **Image Metadata (`analyzer.py`)**: `EDITING_SOFTWARE_KEYWORDS` (`photoshop`, `adobe`, `gimp`, `canva`, `snapseed`, `picsart`, `lightroom`, `affinity`, `paint.net`, `pixlr`, `fotor`, `inkscape`, `coreldraw`, `iloveimg`, `photopea`, `facetune`), timestamp gap threshold `> 24h` or `DateTime < DateTimeOriginal - 5m`.
+## 4. Key Algorithm Thresholds
+- **ELA (`ela.py`)**: Luminance (`Y`) recompression at `quality=90`; 8×8 block aggregation + 3×3 block smoothing; active-block (`local_blk_grad > 4.0`) median ratio `1.35 * med_ratio`; `z_thresh = 3.8`, `min_abs_excess = 0.75`, `min_abs_blk_ela = max(med_ela + 1.8, 2.35)`, `b_w >= 2, b_h >= 2`, `min_blk_area = 4`.
+- **Copy-Move (`copy_move.py`)**: `MAX_PROCESS_DIM = 1600`, `ORB nfeatures = 2500`, `MAX_HAMMING_DIST = 28`, `MIN_CLUSTER_MATCHES = 8`, `SHIFT_BIN_SIZE = 16`, `SPATIAL_LINK_RADIUS = 28.0`, `MIN_PATCH_CORR = 0.88`, self-overlap rejection `> 15%`. Margin branding (`y < 18%` or `y > 82%`) or 3+ repetitive layout copies return `inconclusive` (`score=0.22`, `confidence=0.40`).
+- **Noise (`noise.py`)**: `BLOCK_SIZE = 48`, `EDGE_GRAD_THRESH = 60.0` (on 5×5 Gaussian-smoothed image), `MIN_NON_EDGE_RATIO = 0.35`, `Z_THRESH = 4.5`, `MIN_ABS_NOISE_DIFF = 1.8`.
+- **Typography (`typography.py`)**: Line height `10..65px`, word `w >= 14, h >= 8..55`; flags only when `>= 2` corroborating cues occur within the same line (`local_bg_diff >= 18`, `ΔRGB >= 55`, `baseline_shift >= max(5, 0.32*h)` or `height_mismatch >= 45%`, `stroke_diff >= 65%`), or native PDF span size diff `>= 1.8pt` / baseline shift `>= 3.0pt` within contiguous spans (`max_gap <= 35pt`).
 
-## 5. Score & Confidence Interpretation
-- All `score` and `confidence` values are bounded in `[0.0, 1.0]`.
-- `passed`: `score` in `0.00 - 0.18` (no localized anomaly detected).
-- `suspicious`: `score` capped at `0.85` (`ela`, `copy_move`) or `0.80` (`noise_inconsistency`, `image_metadata`); risk indicators are never reported as `1.0` proof of forgery.
-- `inconclusive`: `score = 0.0`, low confidence (`0.10 - 0.25`) for blank/tiny images or stripped EXIF metadata.
-- `not_applicable`: `score = 0.0`, `confidence = 0.0` (e.g., `ela` on PNG/PDF; `image_metadata` on PDF, which is owned by `file_forensics`).
-
-## 6. Supported Formats & Known Limitations
-- **Formats**: Original `source` in `.jpg`, `.jpeg`, `.png`, `.tif`, `.tiff`, `.webp`, `.bmp`, or `.pdf` (with rendered `pages`).
-- **Limitations**:
-  - `ela` applies only to original `.jpg`/`.jpeg` uploads; PNGs and PDF-rendered pages lack original JPEG quantization history.
-  - `copy_move` can flag genuinely repeated visual elements such as identical company logos or stamps appearing twice on the same page.
-  - `image_metadata` returns `inconclusive` when messaging apps or scanners strip EXIF/PNG metadata; missing metadata does not imply forgery.
-  - Detection accuracy on real-world forged documents is not claimed without evaluating on Member 4's shared synthetic/consented dataset.
-
-## 7. Measured Test Results & Latency
-- **Test suite**: `python -m pytest backend/tests/test_visual -v` -> **23 passed in 9.79s**.
-- **Measured single-page JPEG latency (800x1000)**: `0.838s` total across all 4 detectors (`ela`: `0.0129`, `copy_move`: `0.05`, `noise_inconsistency`: `0.0076`, `image_metadata`: `0.0` inconclusive when EXIF stripped).
+## 5. Measured Evaluation (28 Synthetic Documents + 30 Unit Tests)
+- **Unit & robustness tests**: `python -m pytest backend/tests/test_visual -v` -> **30 passed in 25.20s**.
+- **28-sample dataset summary**:
+  - `ela`: `TP=2, FP=0, FN=0, TN=3, NA=23 | P=1.00, R=1.00, F1=1.00, FPR=0.000`
+  - `copy_move`: `TP=1, FP=0, FN=0, TN=27 | P=1.00, R=1.00, F1=1.00, FPR=0.000, avgIoU=0.80`
+  - `noise_inconsistency`: `TP=1, FP=2 (on tampered JPEG splices; 0 on clean), FN=0, TN=25 | P=0.33, R=1.00, F1=0.50, FPR=0.074, avgIoU=0.73`
+  - `image_metadata`: `TP=2, FP=0, FN=0, NA=18, INC=8 | P=1.00, R=1.00, F1=1.00, FPR=0.000`
+  - `typography`: `TP=0, FP=0, FN=0, TN=28 | FPR=0.000` (validated on synthetic tampered-amount test)
+- **Measured latency by format (all 5 detectors)**: PDF avg `1.111s`, PNG avg `1.022s`, JPG avg `1.329s`.

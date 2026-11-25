@@ -25,7 +25,7 @@ def test_visual_entry_point_runs_all_detectors_on_jpeg(tmp_path: Path) -> None:
 
     results = analyze(jpg, [jpg], {"invoice_no": "INV-001"})
     names = [r.name for r in results]
-    assert names == ["ela", "copy_move", "noise_inconsistency", "image_metadata"]
+    assert names == ["ela", "copy_move", "noise_inconsistency", "image_metadata", "typography"]
     assert all(isinstance(r, DetectorResult) for r in results)
 
 
@@ -44,7 +44,7 @@ def test_visual_entry_point_handles_multipage_pdf(tmp_path: Path) -> None:
     by_name = {r.name: r for r in results}
     assert by_name["ela"].status == "not_applicable"
     assert by_name["image_metadata"].status == "not_applicable"
-    assert len(results) == 4
+    assert len(results) == 5
 
 
 def test_visual_pipeline_isolates_detector_failure(tmp_path: Path) -> None:
@@ -55,7 +55,7 @@ def test_visual_pipeline_isolates_detector_failure(tmp_path: Path) -> None:
         detectors=[_ExplodingDetector(), *VisualForensicsDetector()._detectors]
     )
     results = pipeline.analyze(png, [png], {})
-    assert len(results) == 5
+    assert len(results) == 6
     assert results[0].name == "exploding_mock"
     assert results[0].status == "error"
     assert "simulated internal failure" in results[0].evidence

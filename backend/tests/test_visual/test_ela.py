@@ -183,3 +183,16 @@ def test_ela_weak_zero_inflated_evidence_returns_inconclusive(tmp_path: Path) ->
         draw2.text((80, 80 + i * 70), f"Line {i + 1}: Consulting Service Fee  INR 1,000.00", fill=(20, 20, 20))
     img2.save(flat_white, format="JPEG", quality=95)
     assert ELADetector().analyze(flat_white, [flat_white], {})[0].status == "inconclusive"
+
+
+def test_ela_benign_recompression_not_flagged(tmp_path: Path) -> None:
+    orig = tmp_path / "orig.jpg"
+    _make_synthetic_invoice(orig)
+    for q in (60, 75, 95):
+        recomp = tmp_path / f"recomp_{q}.jpg"
+        with Image.open(orig) as im:
+            im.save(recomp, format="JPEG", quality=q)
+        res = ELADetector().analyze(recomp, [recomp], {})[0]
+        # Weak compression evidence may legitimately be inconclusive.
+        assert res.status in ("passed", "inconclusive")
+        assert not res.boxes
