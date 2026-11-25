@@ -196,3 +196,14 @@ def test_ela_benign_recompression_not_flagged(tmp_path: Path) -> None:
         # Weak compression evidence may legitimately be inconclusive.
         assert res.status in ("passed", "inconclusive")
         assert not res.boxes
+
+
+def test_jpeg_aligned_pass_localizes_extra_invoice_splice():
+    source = (
+        Path(__file__).resolve().parents[3]
+        / "dataset/eval_extra/tampered/extra_invoice_tampered_visual_ela_splice.jpg"
+    )
+    finding = ELADetector().analyze(source, [source], {})[0]
+    assert finding.status == "suspicious"
+    assert any(695 <= b.x < b.x + b.w <= 1170 and 954 <= b.y < b.y + b.h <= 1022
+               for b in finding.boxes)

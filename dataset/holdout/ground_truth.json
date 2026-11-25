@@ -1,0 +1,150 @@
+{
+  "seed": 17100805501297489677,
+  "synthetic": true,
+  "region_coordinates": "page 0 x1,y1,x2,y2",
+  "samples": [
+    {
+      "file": "01_erp.pdf",
+      "case": "ERP-style PDF",
+      "label": "clean",
+      "expected": [],
+      "region": null,
+      "region_space": "pdf_points",
+      "notes": "",
+      "sha256": "f3c96e0ef91c919d300821b38ed414cb6800b426e54842062bc7c20c8b87c62c"
+    },
+    {
+      "file": "02_photo.jpg",
+      "case": "Photographed printout proxy",
+      "label": "clean",
+      "expected": [],
+      "region": null,
+      "region_space": "pdf_points",
+      "notes": "Synthetic perspective proxy: rendered printout with tilt and dark surround; no physical camera capture.",
+      "sha256": "6d1bd5dd8ae1e258d54e95645cb7a17e5565bc046d959bbdd28b9304853f1aa2"
+    },
+    {
+      "file": "03_scan.pdf",
+      "case": "Image-only scanned PDF",
+      "label": "clean",
+      "expected": [],
+      "region": null,
+      "region_space": "pdf_points",
+      "notes": "",
+      "sha256": "eb02fecb0de74d9614fc2773933a18276a5a0a8f348c3a90c1cfa6f96834f075"
+    },
+    {
+      "file": "04_bank.pdf",
+      "case": "Two-page reconciled bank statement",
+      "label": "clean",
+      "expected": [],
+      "region": null,
+      "region_space": "pdf_points",
+      "notes": "",
+      "sha256": "df5ff8b4698326ab025e6bf0b06deb81512a2f329296ac111b2f59a9bae0d75d"
+    },
+    {
+      "file": "05_total.pdf",
+      "case": "Edited total",
+      "label": "tampered",
+      "expected": [
+        "invoice_arithmetic_consistency"
+      ],
+      "region": [
+        444,
+        450,
+        515,
+        470
+      ],
+      "region_space": "pdf_points",
+      "notes": "Grand total increased by 2700.",
+      "sha256": "2de39b96f93c951c6deb13454cdadde677a8bb6006e657865c6d6e8672b32e57"
+    },
+    {
+      "file": "06_gstin.pdf",
+      "case": "Swapped GSTIN",
+      "label": "tampered",
+      "expected": [
+        "gst_jurisdiction_consistency",
+        "gstin_validation"
+      ],
+      "region": [
+        81,
+        117,
+        206,
+        136
+      ],
+      "region_space": "pdf_points",
+      "notes": "Checksum-valid Maharashtra GSTIN substituted while Karnataka place of supply and intra-state tax lines remain.",
+      "sha256": "d53bfde1bd019e79e0e52611378705d3d4df15f564c07997e116416fb23373a8"
+    },
+    {
+      "file": "07_ifsc.pdf",
+      "case": "Wrong IFSC",
+      "label": "tampered",
+      "expected": [
+        "ifsc_validation"
+      ],
+      "region": [
+        75,
+        167,
+        185,
+        187
+      ],
+      "region_space": "pdf_points",
+      "notes": "Mandatory position 5 zero replaced with 1.",
+      "sha256": "5e22b8701576eca60e524c58293e46d580a9ab3243b8ebdf2559d693e715f62b"
+    },
+    {
+      "file": "08_patch.png",
+      "case": "Pasted region",
+      "label": "tampered",
+      "expected": [
+        "copy_move",
+        "noise_inconsistency",
+        "typography",
+        "invoice_arithmetic_consistency"
+      ],
+      "region": [
+        596,
+        730,
+        1060,
+        947
+      ],
+      "region_space": "pixels",
+      "notes": "Totals block from a different invoice pasted into this one.",
+      "sha256": "7392feb4051db5b3f71d74900df482f0e516e0cdbd328b7686fb82a5c0f898c8"
+    },
+    {
+      "file": "09_metadata.pdf",
+      "case": "Metadata-edited PDF",
+      "label": "tampered",
+      "expected": [
+        "pdf_metadata_integrity"
+      ],
+      "region": null,
+      "region_space": "pdf_points",
+      "notes": "Metadata-only modification timestamp precedes creation; no pixel region.",
+      "sha256": "cb8480da2ab6a06a1349918da4454728a5b3ff508fe85ff97605a2761a05058f"
+    },
+    {
+      "file": "10_splice.jpg",
+      "case": "Globally re-saved JPEG splice",
+      "label": "tampered",
+      "expected": [
+        "ela",
+        "invoice_arithmetic_consistency",
+        "noise_inconsistency"
+      ],
+      "region": [
+        880,
+        891,
+        1050,
+        944
+      ],
+      "region_space": "pixels",
+      "notes": "Low-quality edited amount followed by two whole-image saves.",
+      "sha256": "8f24b1ccad66798baa25ef7a57a61c2f65e1c0169d35bfd239f58a73646adc23"
+    }
+  ]
+}

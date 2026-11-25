@@ -1,3 +1,5 @@
+import pytest
+
 from app.scoring.risk import calculate, evaluate
 from app.explainability import explain
 from app.schemas import DetectorResult
@@ -85,3 +87,15 @@ def test_mixed_inconclusive_needs_review_not_low():
     assert "needs review" in exp.summary.lower()
     assert "needs review" in exp.recommendation.lower()
     assert any("not checked" in lim.lower() for lim in exp.limitations)
+
+
+@pytest.mark.parametrize("name", ["noise_inconsistency", "ela", "image_metadata", "copy_move"])
+def test_visual_flag_without_high_reliability_does_not_raise_floor(name):
+    visual = run("visual", 0.65, 0.69)
+    visual["findings"][0]["name"] = name
+    risk, meta = evaluate([visual, run("file_forensics", 0, status="passed"),
+                           run("consistency", 0, status="passed")])
+    assert risk["risk_level"] == "low"
+    assert risk["risk_score"] == 19.5
+    assert meta["floor_level"] == "low"
+    assert meta["annotated_runs"][0]["findings"][0]["severity"] == "suspicious"

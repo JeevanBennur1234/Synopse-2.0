@@ -33,7 +33,16 @@ EVIDENCE_GROUPS: dict[str, str] = {
     "qr_code_consistency": "qr_cross_check",
 }
 
-# ELA highlights compression differences only; never strong/high evidence on its own.
+# Only rules with reliable failure evidence can establish a structural floor.
+FLOOR_ELIGIBLE_RULES = frozenset({
+    "pdf_structural_integrity", "gstin_validation", "ifsc_validation",
+    "invoice_arithmetic_consistency", "invoice_line_items_arithmetic",
+    "cgst_sgst_symmetry", "gst_jurisdiction_consistency", "tax_rate_arithmetic",
+    "bank_statement_balance_consistency", "calendar_date_validity", "date_chronology",
+})
+COPY_MOVE_MIN_FLOOR_CONFIDENCE = 0.70
+
+# An isolated ELA signal also retains its existing weighted risk cap.
 LOW_CONFIDENCE_DETECTORS = frozenset({"ela"})
 
 
@@ -52,7 +61,11 @@ def _classify_severity(finding: dict[str, Any]) -> str:
     det_name = str(finding.get("name") or "").strip().lower()
     conf = float(finding.get("confidence") or 0.0)
     score = float(finding.get("score") or 0.0)
-    if det_name in LOW_CONFIDENCE_DETECTORS:
+    # Suspicious copy-move output requires both texture and RANSAC gates in the detector.
+    eligible = det_name in FLOOR_ELIGIBLE_RULES or (
+        det_name == "copy_move" and conf >= COPY_MOVE_MIN_FLOOR_CONFIDENCE
+    )
+    if not eligible:
         return "suspicious"
     if conf >= MIN_CONFIDENCE and score >= STRONG_SCORE_THRESHOLD:
         return "strong"
