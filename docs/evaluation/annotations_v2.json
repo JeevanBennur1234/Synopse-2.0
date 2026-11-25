@@ -1,0 +1,439 @@
+{
+  "total_samples": 14,
+  "samples": [
+    {
+      "filename": "invoice_clean_gst_01.pdf",
+      "relative_path": "dataset/clean/invoice_clean_gst_01.pdf",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Clean synthetic native-text GST invoice with valid GSTIN and consistent arithmetic."
+    },
+    {
+      "filename": "invoice_clean_01.png",
+      "relative_path": "dataset/clean/invoice_clean_01.png",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "png",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Clean synthetic PNG GST invoice for OCR and image pipeline testing."
+    },
+    {
+      "filename": "invoice_clean_01.jpg",
+      "relative_path": "dataset/clean/invoice_clean_01.jpg",
+      "document_type": "gst_invoice",
+      "label": "clean",
+      "format": "jpg",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Clean synthetic JPEG GST invoice for ELA baseline and OCR testing."
+    },
+    {
+      "filename": "invoice_scanned_clean_01.pdf",
+      "relative_path": "dataset/clean/invoice_scanned_clean_01.pdf",
+      "document_type": "gst_invoice_scanned",
+      "label": "clean",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1191,
+          "height": 1684
+        }
+      ],
+      "notes": "Clean scanned-style image PDF (forces OCR extraction path)."
+    },
+    {
+      "filename": "bank_statement_clean_01.pdf",
+      "relative_path": "dataset/clean/bank_statement_clean_01.pdf",
+      "document_type": "bank_statement",
+      "label": "clean",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [],
+      "affected_page": null,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        },
+        {
+          "page": 1,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Clean 2-page synthetic bank statement with consistent running balances."
+    },
+    {
+      "filename": "invoice_tampered_grand_total.pdf",
+      "relative_path": "dataset/tampered/invoice_tampered_grand_total.pdf",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "grand_total_mismatch",
+          "description": "Subtotal (10,000.00) + CGST (900.00) + SGST (900.00) = 11,800.00, but Grand total reads 19,800.00."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 670,
+          "y": 926,
+          "w": 348,
+          "h": 42,
+          "description": "Altered Grand total value"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Consistency test: inflated grand total."
+    },
+    {
+      "filename": "invoice_tampered_invalid_gstin.pdf",
+      "relative_path": "dataset/tampered/invoice_tampered_invalid_gstin.pdf",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "invalid_gstin",
+          "description": "Seller GSTIN '99INVALID1234Z0' fails Indian GSTIN structure/state-code/checksum rules."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 72,
+          "y": 212,
+          "w": 266,
+          "h": 36,
+          "description": "Invalid Seller GSTIN"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Consistency test: malformed GSTIN with invalid state code 99 and pattern."
+    },
+    {
+      "filename": "invoice_tampered_tax_mismatch.pdf",
+      "relative_path": "dataset/tampered/invoice_tampered_tax_mismatch.pdf",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "tax_inconsistency",
+          "description": "Declared 9% CGST + 9% SGST on 10,000.00 should be 900.00 each, but CGST is 1,400.00 (asymmetric with SGST 900.00)."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 670,
+          "y": 766,
+          "w": 226,
+          "h": 78,
+          "description": "Asymmetric CGST/SGST tax lines"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Consistency test: CGST and SGST mismatch against declared 9% + 9% rate."
+    },
+    {
+      "filename": "bank_statement_tampered_balance.pdf",
+      "relative_path": "dataset/tampered/bank_statement_tampered_balance.pdf",
+      "document_type": "bank_statement",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "running_balance_mismatch",
+          "description": "Page 2 row 1 (14/11/2026): previous balance 200,000.00 minus debit 12,000.00 should be 188,000.00, but reads 198,000.00."
+        }
+      ],
+      "affected_page": 1,
+      "known_affected_regions": [
+        {
+          "page": 1,
+          "x": 942,
+          "y": 218,
+          "w": 120,
+          "h": 38,
+          "description": "Inconsistent running balance on page 2"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1190,
+          "height": 1684
+        },
+        {
+          "page": 1,
+          "width": 1190,
+          "height": 1684
+        }
+      ],
+      "notes": "Multi-page consistency test: running balance inflated by 10,000.00 on page 2."
+    },
+    {
+      "filename": "invoice_scanned_tampered_total.pdf",
+      "relative_path": "dataset/tampered/invoice_scanned_tampered_total.pdf",
+      "document_type": "gst_invoice_scanned",
+      "label": "tampered",
+      "format": "pdf",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "consistency",
+          "code": "grand_total_mismatch",
+          "description": "Scanned invoice Grand total reads 18,800.00 instead of 11,800.00."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 665,
+          "y": 955,
+          "w": 458,
+          "h": 71,
+          "description": "Altered Grand total on scanned invoice"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1191,
+          "height": 1684
+        }
+      ],
+      "notes": "Scanned-style PDF requiring OCR to detect grand total arithmetic discrepancy."
+    },
+    {
+      "filename": "invoice_tampered_visual_ela.jpg",
+      "relative_path": "dataset/tampered/invoice_tampered_visual_ela.jpg",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "jpg",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "visual",
+          "code": "ela_compression_splice",
+          "description": "Grand total region pasted from a lower-quality JPEG (q=35) onto a q=95 invoice."
+        },
+        {
+          "category": "consistency",
+          "code": "grand_total_mismatch",
+          "description": "Altered Grand total reads 31,800.00 instead of 11,800.00."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 695,
+          "y": 994,
+          "w": 475,
+          "h": 68,
+          "description": "JPEG splice over Grand total"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Member 2 ELA test sample: localized compression history mismatch over Grand total."
+    },
+    {
+      "filename": "invoice_tampered_visual_copy_move.png",
+      "relative_path": "dataset/tampered/invoice_tampered_visual_copy_move.png",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "png",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "visual",
+          "code": "copy_move_clone",
+          "description": "Authorization stamp cloned verbatim from left block to center-left block."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 115,
+          "y": 905,
+          "w": 180,
+          "h": 120,
+          "description": "Original stamp source region"
+        },
+        {
+          "page": 0,
+          "x": 385,
+          "y": 905,
+          "w": 180,
+          "h": 120,
+          "description": "Cloned copy-move stamp region"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Member 2 Copy-Move test sample: exact pixel clone of textured authorization stamp."
+    },
+    {
+      "filename": "invoice_tampered_visual_noise.png",
+      "relative_path": "dataset/tampered/invoice_tampered_visual_noise.png",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "png",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "visual",
+          "code": "noise_inconsistency",
+          "description": "Grand total region exhibits elevated sensor/grain noise (sigma=16) vs page background (sigma=4.5)."
+        },
+        {
+          "category": "consistency",
+          "code": "grand_total_mismatch",
+          "description": "Altered Grand total reads 41,800.00 instead of 11,800.00."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [
+        {
+          "page": 0,
+          "x": 680,
+          "y": 980,
+          "w": 500,
+          "h": 140,
+          "description": "High-noise spliced patch over Grand total"
+        }
+      ],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Member 2 Noise Inconsistency test sample: >= 48x48 block noise outlier over Grand total."
+    },
+    {
+      "filename": "invoice_tampered_metadata_edited.jpg",
+      "relative_path": "dataset/tampered/invoice_tampered_metadata_edited.jpg",
+      "document_type": "gst_invoice",
+      "label": "tampered",
+      "format": "jpg",
+      "synthetic_only": true,
+      "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+      "expected_anomalies": [
+        {
+          "category": "image_metadata",
+          "code": "editing_software_exif",
+          "description": "EXIF Software tag indicates 'Adobe Photoshop CC 2024 (Windows)' with >24h DateTime vs DateTimeOriginal gap."
+        }
+      ],
+      "affected_page": 0,
+      "known_affected_regions": [],
+      "page_dimensions": [
+        {
+          "page": 0,
+          "width": 1240,
+          "height": 1754
+        }
+      ],
+      "notes": "Member 2 Image Metadata test sample: EXIF editing software keyword and timestamp discrepancy."
+    }
+  ]
+}
