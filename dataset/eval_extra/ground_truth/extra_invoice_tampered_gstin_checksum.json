@@ -1,0 +1,35 @@
+{
+  "filename": "extra_invoice_tampered_gstin_checksum.pdf",
+  "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_gstin_checksum.pdf",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "invalid_gstin",
+      "description": "Seller GSTIN '29ORION4321K1Z0' matches regex pattern but fails mod-36 check digit."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 72,
+      "y": 212,
+      "w": 266,
+      "h": 36,
+      "description": "Altered GSTIN check digit"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Tampered GSTIN check digit test."
+}

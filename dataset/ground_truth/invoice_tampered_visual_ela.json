@@ -1,0 +1,40 @@
+{
+  "filename": "invoice_tampered_visual_ela.jpg",
+  "relative_path": "dataset/tampered/invoice_tampered_visual_ela.jpg",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "jpg",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "visual",
+      "code": "ela_compression_splice",
+      "description": "Grand total region pasted from a lower-quality JPEG (q=35) onto a q=95 invoice."
+    },
+    {
+      "category": "consistency",
+      "code": "grand_total_mismatch",
+      "description": "Altered Grand total reads 31,800.00 instead of 11,800.00."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 695,
+      "y": 994,
+      "w": 475,
+      "h": 68,
+      "description": "JPEG splice over Grand total"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Member 2 ELA test sample: localized compression history mismatch over Grand total."
+}

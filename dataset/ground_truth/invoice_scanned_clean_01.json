@@ -1,0 +1,20 @@
+{
+  "filename": "invoice_scanned_clean_01.pdf",
+  "relative_path": "dataset/clean/invoice_scanned_clean_01.pdf",
+  "document_type": "gst_invoice_scanned",
+  "label": "clean",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [],
+  "affected_page": null,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1191,
+      "height": 1684
+    }
+  ],
+  "notes": "Clean scanned-style image PDF (forces OCR extraction path)."
+}

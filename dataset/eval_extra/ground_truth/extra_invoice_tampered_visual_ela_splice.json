@@ -1,0 +1,40 @@
+{
+  "filename": "extra_invoice_tampered_visual_ela_splice.jpg",
+  "relative_path": "dataset/eval_extra/tampered/extra_invoice_tampered_visual_ela_splice.jpg",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "jpg",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "visual",
+      "code": "ela_compression_splice",
+      "description": "Grand total region spliced at JPEG q=30 onto q=95 invoice."
+    },
+    {
+      "category": "consistency",
+      "code": "grand_total_mismatch",
+      "description": "Grand total reads 27,700.00 instead of 17,700.00."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 695,
+      "y": 954,
+      "w": 475,
+      "h": 68,
+      "description": "JPEG splice over Grand total"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Independent visual ELA splice + total mismatch test."
+}
