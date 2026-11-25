@@ -1,0 +1,43 @@
+{
+  "filename": "invoice_tampered_visual_copy_move.png",
+  "relative_path": "dataset/tampered/invoice_tampered_visual_copy_move.png",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "png",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "visual",
+      "code": "copy_move_clone",
+      "description": "Authorization stamp cloned verbatim from left block to center-left block."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 115,
+      "y": 905,
+      "w": 180,
+      "h": 120,
+      "description": "Original stamp source region"
+    },
+    {
+      "page": 0,
+      "x": 385,
+      "y": 905,
+      "w": 180,
+      "h": 120,
+      "description": "Cloned copy-move stamp region"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Member 2 Copy-Move test sample: exact pixel clone of textured authorization stamp."
+}

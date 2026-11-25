@@ -1,0 +1,25 @@
+{
+  "filename": "bank_statement_clean_01.pdf",
+  "relative_path": "dataset/clean/bank_statement_clean_01.pdf",
+  "document_type": "bank_statement",
+  "label": "clean",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [],
+  "affected_page": null,
+  "known_affected_regions": [],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    },
+    {
+      "page": 1,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Clean 2-page synthetic bank statement with consistent running balances."
+}

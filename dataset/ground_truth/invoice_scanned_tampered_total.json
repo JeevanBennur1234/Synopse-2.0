@@ -1,0 +1,35 @@
+{
+  "filename": "invoice_scanned_tampered_total.pdf",
+  "relative_path": "dataset/tampered/invoice_scanned_tampered_total.pdf",
+  "document_type": "gst_invoice_scanned",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "grand_total_mismatch",
+      "description": "Scanned invoice Grand total reads 18,800.00 instead of 11,800.00."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 695,
+      "y": 994,
+      "w": 475,
+      "h": 68,
+      "description": "Altered Grand total on scanned invoice"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1240,
+      "height": 1754
+    }
+  ],
+  "notes": "Scanned-style PDF requiring OCR to detect grand total arithmetic discrepancy."
+}

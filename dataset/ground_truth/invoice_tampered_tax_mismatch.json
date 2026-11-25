@@ -1,0 +1,35 @@
+{
+  "filename": "invoice_tampered_tax_mismatch.pdf",
+  "relative_path": "dataset/tampered/invoice_tampered_tax_mismatch.pdf",
+  "document_type": "gst_invoice",
+  "label": "tampered",
+  "format": "pdf",
+  "synthetic_only": true,
+  "watermark": "SAMPLE / TEST ONLY \u2014 SYNTHETIC DATA",
+  "expected_anomalies": [
+    {
+      "category": "consistency",
+      "code": "tax_inconsistency",
+      "description": "Declared 9% CGST + 9% SGST on 10,000.00 should be 900.00 each, but CGST is 1,400.00 (asymmetric with SGST 900.00)."
+    }
+  ],
+  "affected_page": 0,
+  "known_affected_regions": [
+    {
+      "page": 0,
+      "x": 670,
+      "y": 766,
+      "w": 226,
+      "h": 78,
+      "description": "Asymmetric CGST/SGST tax lines"
+    }
+  ],
+  "page_dimensions": [
+    {
+      "page": 0,
+      "width": 1190,
+      "height": 1684
+    }
+  ],
+  "notes": "Consistency test: CGST and SGST mismatch against declared 9% + 9% rate."
+}
