@@ -8,3 +8,4 @@ uploads/
 *.sqlite
 *.db
 .pytest_cache/
+/dataset/real_local/
