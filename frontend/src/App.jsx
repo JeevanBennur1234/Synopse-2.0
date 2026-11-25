@@ -1,3 +1,4 @@
+import { EvidenceSummary } from "./components/EvidenceSummary";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { checkHealth, getJobResult, uploadDocument } from "./api/client";
 import { DEMO_SCENARIOS } from "./data/demoSamples";
@@ -220,6 +221,7 @@ export function App() {
         {result && result.status === "completed" && (
           <>
             <RiskOverview result={result} />
+            <EvidenceSummary result={result} />
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
               <div className="xl:col-span-5 space-y-6">

@@ -55,7 +55,7 @@ export const RISK_STYLES = {
     ring: "text-emerald-700",
     panel: "border-emerald-200 bg-emerald-50/50",
     summary:
-      "All completed forensic and consistency checks passed within normal thresholds. Continue standard verification before financial settlement.",
+      "The aggregate heuristic score is low; individual findings may still require review. Continue standard verification before financial settlement.",
   },
   medium: {
     label: "Medium Risk",

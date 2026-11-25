@@ -1,3 +1,4 @@
+import { EvidenceSummary } from "./EvidenceSummary";
 import { useEffect, useRef, useState } from "react";
 import { Download, Printer, X, ShieldCheck } from "lucide-react";
 import { resolveAssetUrl } from "../api/client";
@@ -87,7 +88,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
 
   const regionItems = [];
   (result.findings || []).forEach((finding, fIdx) => {
-    (finding.boxes || []).forEach((box, bIdx) => {
+    (finding.status === 'suspicious' ? finding.boxes || [] : []).forEach((box, bIdx) => {
       const page = (result.pages || []).find((p) => p.page === box.page);
       regionItems.push({
         key: `${fIdx}-${bIdx}`,
@@ -208,6 +209,7 @@ export function PrintableReport({ result, filename, isDemoMode, onClose }) {
             </div>
           </div>
 
+          <EvidenceSummary result={result} />
           {/* Findings */}
           <div className="print-break-inside-avoid">
             <h3 className="text-sm font-bold text-slate-900 mb-2">

@@ -14,6 +14,7 @@ const ENGINE_LABELS = {
 };
 
 const ENGINE_STATUS_CLS = {
+  not_applicable: "bg-slate-50 text-slate-500 border-slate-200",
   completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
   inconclusive: "bg-slate-100 text-slate-700 border-slate-300",
   unavailable: "bg-slate-50 text-slate-500 border-slate-200",
@@ -135,7 +136,7 @@ export function RiskOverview({ result }) {
                         ENGINE_STATUS_CLS.unavailable
                       }`}
                     >
-                      {run.status}
+                      {run.status.replaceAll('_', ' ')}
                     </span>
                     <span className="text-[11px] text-slate-500">
                       {run.finding_count}{" "}
@@ -152,7 +153,7 @@ export function RiskOverview({ result }) {
             <span>
               Kavach reports screening risk indicators, not definitive proof of
               forgery. At least 60% weighted detector coverage is required for a
-              numeric risk score.
+              numeric risk score; coverage is measured across applicable engines.
             </span>
           </div>
         </div>
