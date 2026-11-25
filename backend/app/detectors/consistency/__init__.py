@@ -15,11 +15,12 @@ from pathlib import Path
 import re
 from typing import Any
 
-from app.detectors.consistency.arithmetic import validate_invoice_arithmetic
+from app.detectors.consistency.arithmetic import has_low_field_confidence, validate_invoice_arithmetic
 from app.detectors.consistency.banking_date import validate_date_and_banking
 from app.detectors.consistency.gstin import validate_gstin_candidates
 from app.detectors.consistency.qr import validate_qr_consistency
 from app.detectors.consistency.tax import validate_tax_consistency
+from app.preprocessing.fields import extract
 from app.schemas import DetectorResult
 
 
@@ -56,6 +57,15 @@ def _is_ocr_sourced(
     return not native_pages
 
 
+def _unconfirmed_ocr_identifier(finding: DetectorResult) -> DetectorResult:
+    return finding.model_copy(update={
+        "status": "inconclusive",
+        "score": 0.0,
+        "confidence": 0.0,
+        "evidence": "OCR-extracted identifier failed validation; verify the characters against the original image.",
+    })
+
+
 class ConsistencyDetector:
     """Document business rules and financial consistency detector implementing Detector protocol."""
 
@@ -67,8 +77,45 @@ class ConsistencyDetector:
         """Analyzes extracted fields and rendered pages for financial and structural consistency."""
         findings: list[DetectorResult] = []
 
-        # 1. GSTIN Validation
-        findings.extend(validate_gstin_candidates(fields))
+        # A mixed PDF can contain independent native and OCR GSTIN candidates.
+        native_gstin, ocr_gstin = set(), set()
+        for page in fields.get("_pages", []):
+            if page.get("method") == "native_pdf":
+                native_gstin.update(extract(page.get("text", ""))["gstin"])
+            elif page.get("method") == "ocr":
+                ocr_gstin.update(extract(page.get("text", ""))["gstin"])
+        raw_gstin = fields.get("gstin")
+        if native_gstin and ocr_gstin and isinstance(raw_gstin, list):
+            ocr_only = ocr_gstin - native_gstin
+            for candidates, method in (
+                ([value for value in raw_gstin if value not in ocr_only], "native_pdf"),
+                ([value for value in raw_gstin if value in ocr_only], "ocr"),
+            ):
+                if not candidates:
+                    continue
+                page_numbers = {
+                    page.get("page") for page in fields["_pages"] if page.get("method") == method
+                }
+                locations = fields.get("_field_locations", {})
+                gstin_locations = locations.get("gstin", [])
+                gstin_locations = gstin_locations if isinstance(gstin_locations, list) else [gstin_locations]
+                source_fields = {
+                    **fields,
+                    "gstin": candidates,
+                    "_field_locations": {
+                        **locations,
+                        "gstin": [
+                            item for item in gstin_locations
+                            if isinstance(item, dict) and item.get("page") in page_numbers
+                        ],
+                    },
+                }
+                for finding in validate_gstin_candidates(source_fields):
+                    if method == "ocr" and finding.status == "suspicious":
+                        finding = _unconfirmed_ocr_identifier(finding)
+                    findings.append(finding)
+        else:
+            findings.extend(validate_gstin_candidates(fields))
 
         # 2. Invoice Financial Arithmetic & Line Items
         findings.extend(validate_invoice_arithmetic(fields))
@@ -120,6 +167,9 @@ class ConsistencyDetector:
             if (
                 not already_suspicious_arith
                 and rate
+                and not has_low_field_confidence(
+                    fields, ("subtotal", "total", "discount", "cgst", "sgst", "utgst", "igst", "cess")
+                )
                 and len(fields.get("subtotal", [])) == len(fields.get("total", [])) == 1
             ):
                 try:
@@ -131,7 +181,7 @@ class ConsistencyDetector:
                         boxes = [
                             dict(page=x["page"], x=x["x"], y=x["y"], w=x["w"], h=x["h"])
                             for x in fields.get("_field_locations", {}).get("total", [])
-                            if x.get("confidence", 0) >= 0.65
+                            if isinstance(x.get("confidence"), (int, float)) and x["confidence"] >= 0.65
                         ]
                         if boxes:
                             findings = [f for f in findings if f.name != "invoice_arithmetic_consistency"]
@@ -155,14 +205,7 @@ class ConsistencyDetector:
                 if f.status == "suspicious" and f.name in ("gstin_validation", "ifsc_validation"):
                     key = ("gstin",) if f.name == "gstin_validation" else ("ifsc",)
                     if _is_ocr_sourced(f, key, fields, ocr_pages, native_pages):
-                        findings[i] = f.model_copy(
-                            update={
-                                "status": "inconclusive",
-                                "score": 0.0,
-                                "confidence": 0.0,
-                                "evidence": "OCR-extracted identifier failed structural validation; verify characters against the original image before concluding tampering.",
-                            }
-                        )
+                        findings[i] = _unconfirmed_ocr_identifier(f)
         return findings
 
 
