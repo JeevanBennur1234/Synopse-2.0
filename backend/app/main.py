@@ -11,6 +11,8 @@ from app.preprocessing.fields import locate
 from app.preprocessing.tables import extract_tables
 from app.pipeline.orchestrator import execute
 from app.scoring.risk import calculate
+from app.adapters.gst_registry import check_registry, RegistryCheck
+from app.explainability import explain, Explanation
 
 ROOT = Path(os.environ.get("KAVACH_DATA", str(Path(__file__).resolve().parents[1] / "uploads")))
 ROOT.mkdir(parents=True, exist_ok=True)
@@ -63,6 +65,8 @@ class JobResult(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     engine_runs: list[EngineRun] = Field(default_factory=list)
     field_locations: dict[str, list[dict]] = Field(default_factory=dict)
+    registry_checks: list[RegistryCheck] = Field(default_factory=list)
+    explanation: Explanation | None = None
 
 
 def connect():
@@ -98,6 +102,16 @@ def run(job, source):
         risk = calculate(runs)
         job.update(**risk)
         job.update(status="completed", pages=pages, fields=fields, field_locations=locations, findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
+        try:
+            job["registry_checks"] = [r.model_dump() for r in check_registry(fields, locations)]
+        except Exception:
+            logging.exception("Mock registry lookup failed")
+            job["warnings"].append("Mock registry lookup unavailable.")
+        try:
+            job["explanation"] = explain(risk, findings, runs, job["warnings"]).model_dump()
+        except Exception:
+            logging.exception("Explanation generation failed")
+            job["warnings"].append("Explanation unavailable.")
     except Exception:
         logging.exception("Processing failed for job %s", job["job_id"])
         job.update(status="failed", warnings=["Document processing failed."])
