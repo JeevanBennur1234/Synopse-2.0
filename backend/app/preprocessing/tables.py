@@ -34,5 +34,27 @@ def extract_tables(pages):
             out[key]=rows
         elif uncertain:
             warnings.append(f"{key}: ambiguous or OCR table layout; structured validation withheld.")
+    if "_bank_transactions" not in out:
+        rows=[]; valid=True; found=False
+        for page in pages:
+            lines=[l.strip() for l in page["text"].splitlines() if l.strip()]
+            header=next((i for i in range(len(lines)-4) if re.fullmatch("Date",lines[i],re.I) and re.fullmatch("Narration|Description|Particulars",lines[i+1],re.I) and all(re.fullmatch(k+r"(?: \(INR\))?",lines[i+j],re.I) for j,k in [(2,"Debit"),(3,"Credit"),(4,"Balance")])),None)
+            if header is None:
+                valid=False
+                continue
+            found=True
+            if page.get("method")!="native_pdf": valid=False; continue
+            i=header+5
+            while i<len(lines):
+                if re.match(r"(?i)closing balance:|SAMPLE / TEST ONLY",lines[i]): break
+                if i+4>=len(lines) or not re.fullmatch(DATE,lines[i]) or not all(re.fullmatch(NUM+"|-",v) for v in lines[i+2:i+4]) or not re.fullmatch(NUM,lines[i+4]):
+                    valid=False; break
+                row=dict(date=lines[i],description=lines[i+1],debit=lines[i+2].replace("-","0") if lines[i+2]=="-" else lines[i+2],credit="0" if lines[i+3]=="-" else lines[i+3],balance=lines[i+4],page=page["page"])
+                candidates=[w for w in page.get("words",[]) if w["text"]==row["balance"]]
+                if len(candidates)==1:
+                    w=candidates[0];row["bbox"]=[w[k] for k in ("x","y","w","h")]
+                rows.append(row);i+=5
+        if found and valid and rows: out["_bank_transactions"]=rows
+        elif found: warnings.append("Bank table layout incomplete; running balance validation withheld.")
     return out,warnings
 

@@ -56,6 +56,8 @@ class EngineRun(BaseModel):
 class JobResult(BaseModel):
     job_id: str
     status: Literal["queued", "running", "completed", "failed"]
+    review_required: bool = False
+    check_status_counts: dict[str, int] = Field(default_factory=dict)
     risk_score: float | None = None
     risk_level: Literal["low", "medium", "high", "inconclusive"]
     coverage: float
@@ -101,6 +103,8 @@ def run(job, source):
         findings, runs, detector_warnings = execute(source, pages, context)
         risk = calculate(runs)
         job.update(**risk)
+        job["review_required"] = any(f.status == "suspicious" for f in findings) or risk["risk_level"] == "inconclusive"
+        job["check_status_counts"] = {status: sum(f.status == status for f in findings) for status in ("passed","suspicious","inconclusive","not_applicable","error")}
         job.update(status="completed", pages=pages, fields=fields, field_locations=locations, findings=[f.model_dump() for f in findings], engine_runs=runs, warnings=warnings + detector_warnings + (["Insufficient conclusive evidence for overall risk."] if risk["risk_score"] is None else []))
         try:
             job["registry_checks"] = [r.model_dump() for r in check_registry(fields, locations)]
