@@ -51,7 +51,7 @@ def _clamp_box(
 
 
 def _compute_ela_map(
-    rgb_image: np.ndarray, quality: int = DEFAULT_RECOMPRESS_QUALITY
+    rgb_image: np.ndarray, quality: int = DEFAULT_RECOMPRESS_QUALITY, *, luminance_only: bool = False
 ) -> np.ndarray:
     """Recompress an RGB uint8 image as JPEG and return 2D luminance-weighted error map."""
     pil_img = Image.fromarray(rgb_image, mode="RGB")
@@ -60,6 +60,11 @@ def _compute_ela_map(
     buffer.seek(0)
     with Image.open(buffer) as recomp_pil:
         recomp_rgb = np.asarray(recomp_pil.convert("RGB"), dtype=np.float32)
+
+    if luminance_only:
+        original_y = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2YCrCb)[:, :, 0].astype(np.float32)
+        recompressed_y = cv2.cvtColor(recomp_rgb.astype(np.uint8), cv2.COLOR_RGB2YCrCb)[:, :, 0]
+        return np.abs(original_y - recompressed_y)
 
     diff = np.abs(rgb_image.astype(np.float32) - recomp_rgb)
     # Weight by luminance so 4:2:0 chroma subsampling on colored inks/stamps does not dominate.
@@ -119,6 +124,145 @@ def _boxes_overlap(
         and a.y - margin < by + bh
         and a.y + a.h + margin > by
     )
+
+
+def _analyze_jpeg_blocks(
+    ela_map: np.ndarray, grad_mag: np.ndarray, sat: np.ndarray, page_idx: int,
+    target_size: tuple[int, int] | None,
+) -> tuple[float, float, str, list[BoundingBox], str]:
+    """Search JPEG-aligned luminance residuals for coherent fine-scale anomalies."""
+    block_size = 8
+    orig_h, orig_w = grad_mag.shape
+    # Aggregate on JPEG's native 8x8 DCT block grid to preserve 8x8 blockiness / ringing
+    # around spliced text without diluting it over large white-paper windows.
+    bh = orig_h // block_size
+    bw = orig_w // block_size
+    if bh < 4 or bw < 4:
+        return (
+            0.0,
+            0.1,
+            "inconclusive",
+            [],
+            f"Page {page_idx}: too few 8x8 blocks ({bw}x{bh}) for ELA.",
+        )
+
+    blk_ela = ela_map[: bh * block_size, : bw * block_size].reshape(
+        bh, block_size, bw, block_size
+    ).mean(axis=(1, 3))
+    blk_grad = grad_mag[: bh * block_size, : bw * block_size].reshape(
+        bh, block_size, bw, block_size
+    ).mean(axis=(1, 3))
+
+    # Smooth slightly in block space (3x3 = 24x24 px) to capture contiguous region elevation
+    local_blk_ela = cv2.boxFilter(blk_ela, ddepth=-1, ksize=(3, 3))
+    local_blk_grad = cv2.boxFilter(blk_grad, ddepth=-1, ksize=(3, 3))
+
+    med_ela = float(np.median(local_blk_ela))
+
+    # Fit ELA-per-edge-unit ONLY on active blocks (where text/graphics exist)
+    active_mask = local_blk_grad > 4.0
+    if int(np.sum(active_mask)) >= 20:
+        active_ratios = local_blk_ela[active_mask] / (local_blk_grad[active_mask] + 15.0)
+        med_ratio = float(np.median(active_ratios))
+        slope = 1.35 * med_ratio
+        expected_ela = slope * (local_blk_grad + 15.0)
+    else:
+        expected_ela = np.full_like(local_blk_ela, med_ela)
+
+    excess_ela = np.maximum(0.0, local_blk_ela - expected_ela)
+
+    # Compute robust z-score on active blocks so 90% blank white paper doesn't collapse MAD to 0
+    if int(np.sum(active_mask)) >= 20:
+        act_excess = excess_ela[active_mask]
+        exc_med = float(np.median(act_excess))
+        exc_mad = float(np.median(np.abs(act_excess - exc_med)))
+        scale = max(1.4826 * exc_mad, 0.22)
+    else:
+        exc_med = float(np.median(excess_ela))
+        exc_mad = float(np.median(np.abs(excess_ela - exc_med)))
+        scale = max(1.4826 * exc_mad, 0.22)
+
+    z_map = (excess_ela - exc_med) / scale
+
+    z_thresh = 3.8
+    min_abs_excess = 0.75
+    min_abs_blk_ela = max(med_ela + 1.8, 2.35)
+    anomaly_blk = (
+        (z_map > z_thresh)
+        & (excess_ela > min_abs_excess)
+        & (local_blk_ela > min_abs_blk_ela)
+    ).astype(np.uint8)
+
+    # Bridge 1-block gaps between words on the same spliced line
+    close_k = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 2))
+    anomaly_blk = cv2.morphologyEx(anomaly_blk, cv2.MORPH_CLOSE, close_k)
+
+    num_labels, _, stats, _ = cv2.connectedComponentsWithStats(anomaly_blk, connectivity=8)
+
+    min_blk_area = 4
+    max_blk_area = int(0.45 * bw * bh)
+
+    page_w, page_h = target_size if target_size else (orig_w, orig_h)
+    scale_x = page_w / float(orig_w)
+    scale_y = page_h / float(orig_h)
+
+    boxes: list[BoundingBox] = []
+    peak_z = 0.0
+    total_flagged_blocks = 0
+
+    for label_idx in range(1, num_labels):
+        bx, by, b_w, b_h, area = stats[label_idx]
+        # Reject 1-block-thin horizontal/vertical rule lines
+        if b_w < 2 or b_h < 2:
+            continue
+        if area < min_blk_area or area > max_blk_area:
+            continue
+        # Assess color over the compact candidate rather than masking adjacent text.
+        region_sat = sat[
+            by * block_size : (by + b_h) * block_size,
+            bx * block_size : (bx + b_w) * block_size,
+        ]
+        if float(np.mean(region_sat)) > 20.0 or float(np.mean(region_sat > 45.0)) > 0.12:
+            continue
+        region_z = float(np.max(z_map[by : by + b_h, bx : bx + b_w]))
+        peak_z = max(peak_z, region_z)
+        total_flagged_blocks += int(area)
+        px = bx * block_size
+        py = by * block_size
+        pw = b_w * block_size
+        ph = b_h * block_size
+        clamped = _clamp_box(
+            int(round(px * scale_x)),
+            int(round(py * scale_y)),
+            max(1, int(round(pw * scale_x))),
+            max(1, int(round(ph * scale_y))),
+            page_w,
+            page_h,
+            page_idx,
+        )
+        if clamped is not None:
+            boxes.append(clamped)
+
+    if boxes:
+        area_ratio = total_flagged_blocks / float(bw * bh)
+        raw_score = 0.42 + min(0.28, (peak_z - z_thresh) * 0.03) + min(0.15, area_ratio * 2.0)
+        score = float(np.clip(raw_score, 0.35, 0.85))
+        confidence = float(np.clip(0.52 + min(0.25, (peak_z - z_thresh) * 0.025), 0.52, 0.78))
+        detail = (
+            f"Page {page_idx}: detected {len(boxes)} localized JPEG error-level outlier(s) "
+            f"(peak z={peak_z:.1f}, median block ELA={med_ela:.2f})."
+        )
+        return score, confidence, "suspicious", boxes, detail
+
+    global_p95 = float(np.percentile(local_blk_ela, 95))
+    score = float(np.clip((global_p95 - med_ela) / 40.0, 0.0, 0.18))
+    confidence = 0.65
+    detail = (
+        f"Page {page_idx}: error levels appear spatially consistent "
+        f"(median block ELA={med_ela:.2f}, p95={global_p95:.2f})."
+    )
+    return score, confidence, "passed", [], detail
+
 
 
 def _analyze_single_image(
@@ -293,6 +437,13 @@ def _analyze_single_image(
             f"{overlap_note}"
         )
         return score, confidence, "suspicious", boxes, detail
+
+    # Coarse windows can average away a splice confined to a few JPEG blocks.
+    fine = _analyze_jpeg_blocks(
+        _compute_ela_map(rgb, luminance_only=True), grad_mag, sat, page_idx, target_size
+    )
+    if fine[2] == "suspicious":
+        return fine
 
     zero_frac = float(np.mean(q90_map < 0.5)) if q90_map is not None else 1.0
     # Weak or zero-inflated evidence cannot establish clean authenticity; return inconclusive.
