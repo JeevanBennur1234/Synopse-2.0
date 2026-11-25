@@ -1,0 +1,150 @@
+{
+  "seed": 10936550045824403435,
+  "synthetic": true,
+  "samples": [
+    {
+      "file": "01_erp.pdf",
+      "case": "native separate-line invoice",
+      "label": "clean",
+      "sha256": "37e30d0860d5b553f96103ac7322bc7ba617624f315145a7ad3daf1d04b50126"
+    },
+    {
+      "file": "02_photo_proxy.jpg",
+      "case": "simulated photographed printout",
+      "label": "clean",
+      "sha256": "df752dc601347c9698157c1954f95059b56622799b859c6e05a775d1d8a8c521"
+    },
+    {
+      "file": "03_scan.pdf",
+      "case": "image-only scanned PDF proxy",
+      "label": "clean",
+      "sha256": "113ca48899ad504a71652c0f24dfcc47ba9befbace60c38a437525519c6e7090"
+    },
+    {
+      "file": "04_bank.pdf",
+      "case": "two-page bank statement",
+      "label": "clean",
+      "sha256": "50a1d0796ef2a9eece4d4b45b98238f08bfedb44ba1d18c59c80d6502a0b8844"
+    },
+    {
+      "file": "05_raster.png",
+      "case": "clean invoice raster",
+      "label": "clean",
+      "sha256": "1142349c9cf0b5634534df6e71bfaad2f4feb495fbea434383cf3822b3f88b17"
+    },
+    {
+      "file": "06_total.pdf",
+      "case": "edited total",
+      "label": "tampered",
+      "sha256": "c7ba6d343754768a296d7f346dbb0eeaf88fa91758025098b08614809e638583",
+      "old": 74930,
+      "new": 78210,
+      "region": [
+        425.0,
+        559.0999755859375,
+        478.3759765625,
+        575.5880126953125
+      ],
+      "space": "pdf_points"
+    },
+    {
+      "file": "07_gst_bad_checksum.pdf",
+      "case": "invalid GSTIN checksum",
+      "label": "tampered",
+      "sha256": "070c2f62b72ecf508989acc5827a36bed3dedb689c255cc247307b1394e61f21",
+      "old": "29AABFM3412Q1Z0",
+      "new": "29AABFM3412Q1Z1",
+      "region": [
+        87.343994140625,
+        117.0999984741211,
+        198.72796630859375,
+        133.58799743652344
+      ],
+      "space": "pdf_points",
+      "needs_registry": false
+    },
+    {
+      "file": "08_gst_needs_registry.pdf",
+      "case": "valid swap needs registry",
+      "label": "tampered",
+      "sha256": "9c3cb780380482431d0cc97a0821637c08e61f1b8904a9db279a064196d51f04",
+      "old": "29AABFM2254Q1ZU",
+      "new": "29AABFR3765P1ZH",
+      "region": [
+        87.343994140625,
+        117.0999984741211,
+        200.719970703125,
+        133.58799743652344
+      ],
+      "space": "pdf_points",
+      "needs_registry": true
+    },
+    {
+      "file": "09_patch.png",
+      "case": "pasted totals conflict with intact item rows",
+      "label": "tampered",
+      "sha256": "285fd557856eb6efd84c06e250b8e2050799965154a35d43d1bf81d02242214c",
+      "old": {
+        "subtotal": 44600,
+        "tax": 4014,
+        "total": 52628,
+        "gstin": "29AABFM7945Q1ZE"
+      },
+      "new": {
+        "subtotal": 52700,
+        "tax": 4743,
+        "total": 62186,
+        "gstin": "29AABFM1234Q1Z0"
+      },
+      "region": [
+        830,
+        750,
+        1200,
+        1167
+      ],
+      "space": "pixels"
+    },
+    {
+      "file": "10_metadata.pdf",
+      "case": "metadata timestamp inversion",
+      "label": "tampered",
+      "sha256": "27ffc194595410e401a10054065c82c27a2ac49f2bd1334364e2b7587beb4585",
+      "old": "2025-10-07T12:00Z",
+      "new": "2025-10-06T12:00Z"
+    },
+    {
+      "file": "11_splice_clear.jpg",
+      "case": "re-saved JPEG splice",
+      "label": "tampered",
+      "sha256": "79fbb366daa3ba048c3f952dd67e027ba093e6ec4dbbdd08a5fa57c6bb51b349",
+      "old": 87438,
+      "new": 88978,
+      "region": [
+        838,
+        1113,
+        1022,
+        1155
+      ],
+      "space": "pixels",
+      "jpeg_quality": 90,
+      "ink_intensity": 20
+    },
+    {
+      "file": "12_splice_degraded.jpg",
+      "case": "re-saved JPEG splice",
+      "label": "tampered",
+      "sha256": "947569dfced809d9dc4ad35096ac203bc7d73bad2a3eb5949ac414a04d72007a",
+      "old": 75284,
+      "new": 77284,
+      "region": [
+        838,
+        1113,
+        1022,
+        1155
+      ],
+      "space": "pixels",
+      "jpeg_quality": 48,
+      "ink_intensity": 150
+    }
+  ]
+}
