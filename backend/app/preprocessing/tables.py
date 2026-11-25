@@ -1,5 +1,7 @@
-﻿"""Conservative extraction for explicit, simple table layouts."""
+"""Conservative extraction for explicit, simple table layouts."""
 import re
+
+from app.preprocessing.fields import word_rows
 
 NUM = r"-?\d[\d,]*(?:\.\d+)?"
 DATE = r"(?:\d{4}-\d{2}-\d{2}|\d{1,2}[-/]\d{1,2}[-/]\d{4})"
@@ -122,4 +124,118 @@ def extract_tables(pages, stop_patterns: tuple[str, ...] | None = None):
         elif seen_header:
             warnings.append("Bank table layout incomplete; running balance validation withheld.")
 
+    invoice_rows, present, incomplete = _coordinate_invoice_rows(pages)
+    if invoice_rows and not incomplete:
+        out["_line_items"] = invoice_rows
+        warnings = [warning for warning in warnings if not warning.startswith("_line_items:")]
+    elif incomplete:
+        out.pop("_line_items", None)
+        warnings.append("Invoice table contains incomplete or ambiguous numeric rows.")
+    if any(page.get("text", "").strip() or page.get("words") for page in pages):
+        out["_line_items_present"] = present or bool(out.get("_line_items")) or any(
+            warning.startswith("_line_items:") for warning in warnings
+        )
     return out, warnings
+
+
+TABLE_HEADERS = {
+    "description": "description", "item": "description", "particulars": "description",
+    "qty": "quantity", "quantity": "quantity", "rate": "unit_price",
+    "price": "unit_price", "amount": "amount", "hsn": "identifier",
+    "sac": "identifier", "sac/hsn": "identifier", "hsn/sac": "identifier",
+}
+
+
+def _coordinate_invoice_rows(pages):
+    """Read explicitly headed invoice tables, including amount-only layouts."""
+    items = []
+    present = incomplete = False
+    for page in pages:
+        columns = []
+        rows = word_rows(page.get("words", []), 0.8 if page.get("method") == "ocr" else 0.45)
+        if page.get("method") == "ocr":
+            rows = _merge_numeric_fragments(rows)
+        details = None
+        for row in rows:
+            tokens = [word["text"].casefold().strip(":") for word in row]
+            headers = [(TABLE_HEADERS[token], word["x"]) for token, word in zip(tokens, row)
+                       if token in TABLE_HEADERS]
+            names = {name for name, _ in headers}
+            if {"description", "amount"} <= names and headers[0][0] == "description":
+                present = True
+                columns = [(name, x) for name, x in headers if name != "description"]
+                continue
+            if re.search(r"\b(?:sub\s*total|taxable (?:value|amount)|grand total|"
+                         r"cgst|sgst|igst|utgst|cess|discount)\b", " ".join(tokens)):
+                if details and len(details) > 1:
+                    present = True
+                    items.extend(details)
+                columns = []
+                details = None
+                continue
+            if not columns:
+                if re.fullmatch(r"(?:service|item|line item|product|billing) (?:details?|description)", " ".join(tokens)):
+                    details = []
+                elif details is not None and len(row) > 1 and re.fullmatch(NUM, tokens[-1]) and any(
+                    token.isalpha() for token in tokens[:-1]
+                ):
+                    amount = row[-1]
+                    bbox = [amount[k] for k in ("x", "y", "w", "h")]
+                    if details and abs(bbox[0] + bbox[2] - sum(details[-1]["bbox"][::2])) > amount["h"]:
+                        present = incomplete = True
+                        details = None
+                    else:
+                        details.append(dict(
+                            description=" ".join(w["text"] for w in row[:-1]),
+                            amount=amount["text"], page=page["page"], bbox=bbox,
+                            confidence=amount.get("confidence"),
+                        ))
+                elif details:
+                    present = incomplete = True
+                    details = None
+                continue
+            first_x = columns[0][1]
+            desc = []
+            cells = {}
+            for word in row:
+                if word["x"] < first_x - word["h"]:
+                    desc.append(word["text"])
+                elif re.fullmatch(NUM, word["text"]):
+                    col = min(columns, key=lambda entry: abs(word["x"] - entry[1]))[0]
+                    if col != "identifier":
+                        cells.setdefault(col, []).append(word)
+            if not cells:
+                continue
+            required = {name for name, _ in columns if name != "identifier"}
+            if not desc or any(len(cells.get(name, ())) != 1 for name in required):
+                incomplete = True
+                continue
+            numeric = {name: value[0] for name, value in cells.items()}
+            amount = numeric["amount"]
+            confidence = [w["confidence"] for w in numeric.values() if w.get("confidence") is not None]
+            items.append(dict(
+                {name: w["text"] for name, w in numeric.items()},
+                description=" ".join(desc), page=page["page"],
+                bbox=[amount[k] for k in ("x", "y", "w", "h")],
+                confidence=min(confidence) if confidence else None,
+            ))
+        if details:
+            present = incomplete = True
+    return items, present, incomplete
+
+
+def _merge_numeric_fragments(rows):
+    """Restore isolated OCR cells within the preceding text row's vertical extent."""
+    merged = []
+    for row in rows:
+        if merged and all(re.fullmatch(NUM, word["text"]) for word in row):
+            previous = merged[-1]
+            bottom = max(word["y"] + word["h"] for word in previous)
+            top = min(word["y"] for word in previous)
+            if any(not re.fullmatch(NUM, word["text"]) for word in previous) and all(
+                top <= word["y"] <= bottom for word in row
+            ):
+                merged[-1] = sorted(previous + row, key=lambda word: word["x"])
+                continue
+        merged.append(row)
+    return merged

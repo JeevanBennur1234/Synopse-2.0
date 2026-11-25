@@ -45,7 +45,7 @@ def ocr(image, index):
             words.append(dict(text=text, page=index, x=data["left"][i], y=data["top"][i], w=data["width"][i], h=data["height"][i], confidence=max(0, float(data["conf"][i]))/100))
     return words
 
-from app.preprocessing.fields import extract
+from app.preprocessing.fields import extract, extract_native_amounts
 
 def process(source: Path):
     pages, warnings = [], []
@@ -85,4 +85,8 @@ def process(source: Path):
     else:
         with Image.open(source) as im:
             add(im.convert("RGB"),0)
-    return pages, extract("\n".join(p["text"] for p in pages)), warnings
+    fields = extract("\n".join(p["text"] for p in pages))
+    for key, values in extract_native_amounts(pages).items():
+        ocr_values = extract("\n".join(p["text"] for p in pages if p["method"] == "ocr"))[key]
+        fields[key] = list(dict.fromkeys(values + ocr_values))
+    return pages, fields, warnings
